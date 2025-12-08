@@ -1,0 +1,4 @@
+{
+	"verilog.linting.linter": "modelsim",
+	"verilog.linting.modelsim.work": "C:\\Users\\86199\\Desktop\\verilogs\\mips_cpu\\work"
+}

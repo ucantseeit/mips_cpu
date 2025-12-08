@@ -1,0 +1,298 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+dC:/Users/86199/Desktop/verilogs/mips_cpu
+vadder
+Z0 DXx6 sv_std 3 std 0 22 AD7iAPLo6nTIKk<N0eo=D3
+Z1 !s110 1765196756
+!i10b 1
+!s100 f9B0X^lMLX3>T3:GzaE:R1
+IocUnA5SKcekfaK5f[QaTA0
+Z2 VDg1SIo80bB@j0V0VzS_@n1
+Z3 !s105 arith_tb_sv_unit
+S1
+Z4 dc:/Users/86199/Desktop/verilogs/mips_cpu
+w1765163707
+8src/adder.sv
+Fsrc/adder.sv
+L0 4
+Z5 OV;L;10.5b;63
+r1
+!s85 0
+31
+Z6 !s108 1765196756.000000
+Z7 !s107 src/reg32.sv|src/mem.sv|src/cu.sv|src/comparator.sv|src/adder.sv|src/alu.sv|src/single_cycle_cpu.sv|c:\Users\86199\Desktop\verilogs\mips_cpu\tb\arith_tb.sv|
+Z8 !s90 -nologo|-work|C:\Users\86199\Desktop\verilogs\mips_cpu\work|c:\Users\86199\Desktop\verilogs\mips_cpu\tb\arith_tb.sv|
+!i113 1
+Z9 o-nologo -work {C:\Users\86199\Desktop\verilogs\mips_cpu\work}
+Z10 tCvgOpt 0
+valu
+R0
+R1
+!i10b 1
+!s100 @AK9G`9AVU?ZzLOJ83Y;n2
+IaWh6Y:_iz;?oe1_CWikZo0
+R2
+R3
+S1
+R4
+w1765196552
+8src/alu.sv
+Fsrc/alu.sv
+L0 9
+R5
+r1
+!s85 0
+31
+R6
+R7
+R8
+!i113 1
+R9
+R10
+valu_cu
+R0
+R1
+!i10b 1
+!s100 lVNz2We`@>Vh9WnPg^Q531
+IfXbSKU40>g;FXDCW;[08E3
+R2
+R3
+S1
+R4
+Z11 w1765178930
+Z12 8src/cu.sv
+Z13 Fsrc/cu.sv
+L0 47
+R5
+r1
+!s85 0
+31
+R6
+R7
+R8
+!i113 1
+R9
+R10
+vcomparator
+R0
+R1
+!i10b 1
+!s100 2oi9]ch[:Cn:>:<ZR0KeR3
+IBJWJXzzBKLb3OEM>`;nC[1
+R2
+R3
+S1
+R4
+w1765163719
+8src/comparator.sv
+Fsrc/comparator.sv
+L0 1
+R5
+r1
+!s85 0
+31
+R6
+R7
+R8
+!i113 1
+R9
+R10
+vmcu
+R0
+R1
+!i10b 1
+!s100 ;35:Um=idcn]>4QzBV4o>2
+I;=ZTAb=z5;QIGJ5?@O5MN2
+R2
+R3
+S1
+R4
+R11
+R12
+R13
+L0 1
+R5
+r1
+!s85 0
+31
+R6
+R7
+R8
+!i113 1
+R9
+R10
+vram
+R0
+Z14 !s110 1765196780
+!i10b 1
+!s100 FNDam9=bXmH06I_?DBhFL2
+INXDoo@Q]JW6KC:B>zPI1F2
+R2
+Z15 !s105 mem_sv_unit
+S1
+R4
+Z16 w1765196780
+Z17 8c:\Users\86199\Desktop\verilogs\mips_cpu\src\mem.sv
+Z18 Fc:\Users\86199\Desktop\verilogs\mips_cpu\src\mem.sv
+L0 64
+R5
+r1
+!s85 0
+31
+Z19 !s108 1765196780.000000
+Z20 !s107 c:\Users\86199\Desktop\verilogs\mips_cpu\src\mem.sv|
+Z21 !s90 -nologo|-work|C:\Users\86199\Desktop\verilogs\mips_cpu\work|c:\Users\86199\Desktop\verilogs\mips_cpu\src\mem.sv|
+!i113 1
+R9
+R10
+vreg32
+R0
+R1
+!i10b 1
+!s100 f_km=kVATFIlz;`e4N5RT2
+IF2jWeHYEM8z8hDJ6hD]0W1
+R2
+R3
+S1
+R4
+Z22 w1765163694
+Z23 8src/reg32.sv
+Z24 Fsrc/reg32.sv
+L0 1
+R5
+r1
+!s85 0
+31
+R6
+R7
+R8
+!i113 1
+R9
+R10
+vreg_file
+R0
+R14
+!i10b 1
+!s100 NSz:FGS`2@NjPQ`e_MeYW0
+IajScPY369]KhY=CKL`ejd0
+R2
+R15
+S1
+R4
+R16
+R17
+R18
+L0 17
+R5
+r1
+!s85 0
+31
+R19
+R20
+R21
+!i113 1
+R9
+R10
+vreg_reset
+R0
+R1
+!i10b 1
+!s100 Ik0>CHBd0EPRTHc0SdZIO3
+Iekedh?<Ef?P5@[T:>]7fb1
+R2
+R3
+S1
+R4
+R22
+R23
+R24
+L0 13
+R5
+r1
+!s85 0
+31
+R6
+R7
+R8
+!i113 1
+R9
+R10
+vrom
+R0
+R14
+!i10b 1
+!s100 <M5gK3Zn7QW0n65VDJ>La2
+Ijdlz_ccbN@eXj`dng4XNX1
+R2
+R15
+S1
+R4
+R16
+R17
+R18
+L0 42
+R5
+r1
+!s85 0
+31
+R19
+R20
+R21
+!i113 1
+R9
+R10
+vsingle_cycle_cpu
+R0
+R1
+!i10b 1
+!s100 GU:OFKI=eCjHX_8@YJRcm3
+IZ:VILXgZPI=d`[`=dMGoU2
+R2
+R3
+S1
+R4
+w1765196201
+8src/single_cycle_cpu.sv
+Fsrc/single_cycle_cpu.sv
+L0 6
+R5
+r1
+!s85 0
+31
+R6
+R7
+R8
+!i113 1
+R9
+R10
+vtb_cpu
+R0
+R1
+!i10b 1
+!s100 8`a4V1l>o>F@=fQQI43DP1
+IUScDW4TgJb0nZfeb7nHQo0
+R2
+R3
+S1
+R4
+w1765196351
+8c:\Users\86199\Desktop\verilogs\mips_cpu\tb\arith_tb.sv
+Fc:\Users\86199\Desktop\verilogs\mips_cpu\tb\arith_tb.sv
+L0 4
+R5
+r1
+!s85 0
+31
+R6
+R7
+R8
+!i113 1
+R9
+R10
