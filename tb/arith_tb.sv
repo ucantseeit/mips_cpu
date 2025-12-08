@@ -4,12 +4,16 @@
 module tb_cpu;
     localparam int MEM_DEPTH = 256;
 	logic clk, reset;
-    always #5 clk = ~clk;
+		initial begin 
+		clk = 0; 
+		forever #5 clk = ~clk;
+	end
+    // always #5 clk = ~clk;
     task wait_cycles(int n);
         repeat (n) @(posedge clk);
     endtask
 	
-    logic [31:0] regs [0:31];
+    logic [31:0] [31:0] regs ;
     
     // 调试信号
     logic [31:0] pc, instr;
@@ -22,8 +26,11 @@ module tb_cpu;
         .instr_debug(instr)
     );
 
+	integer idx;
     initial begin
         $display("Starting CPU test with file-based memory...");
+		$dumpfile("wave.vcd");
+    	$dumpvars(0, tb_cpu);
 
         clk = 0;
         reset = 1;

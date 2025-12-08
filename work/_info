@@ -10,7 +10,7 @@ cModel Technology
 dC:/Users/86199/Desktop/verilogs/mips_cpu
 vadder
 Z0 DXx6 sv_std 3 std 0 22 AD7iAPLo6nTIKk<N0eo=D3
-Z1 !s110 1765196756
+Z1 !s110 1765200828
 !i10b 1
 !s100 f9B0X^lMLX3>T3:GzaE:R1
 IocUnA5SKcekfaK5f[QaTA0
@@ -26,7 +26,7 @@ Z5 OV;L;10.5b;63
 r1
 !s85 0
 31
-Z6 !s108 1765196756.000000
+Z6 !s108 1765200828.000000
 Z7 !s107 src/reg32.sv|src/mem.sv|src/cu.sv|src/comparator.sv|src/adder.sv|src/alu.sv|src/single_cycle_cpu.sv|c:\Users\86199\Desktop\verilogs\mips_cpu\tb\arith_tb.sv|
 Z8 !s90 -nologo|-work|C:\Users\86199\Desktop\verilogs\mips_cpu\work|c:\Users\86199\Desktop\verilogs\mips_cpu\tb\arith_tb.sv|
 !i113 1
@@ -66,7 +66,7 @@ R2
 R3
 S1
 R4
-Z11 w1765178930
+Z11 w1765197525
 Z12 8src/cu.sv
 Z13 Fsrc/cu.sv
 L0 47
@@ -130,25 +130,25 @@ R9
 R10
 vram
 R0
-Z14 !s110 1765196780
+R1
 !i10b 1
-!s100 FNDam9=bXmH06I_?DBhFL2
-INXDoo@Q]JW6KC:B>zPI1F2
+!s100 a_:6ZDaQLQB;]BhOlV_eQ2
+I:7AbTFo=7^Cj8EHJG7h<61
 R2
-Z15 !s105 mem_sv_unit
+R3
 S1
 R4
-Z16 w1765196780
-Z17 8c:\Users\86199\Desktop\verilogs\mips_cpu\src\mem.sv
-Z18 Fc:\Users\86199\Desktop\verilogs\mips_cpu\src\mem.sv
-L0 64
+Z14 w1765200106
+Z15 8src/mem.sv
+Z16 Fsrc/mem.sv
+L0 62
 R5
 r1
 !s85 0
 31
-Z19 !s108 1765196780.000000
-Z20 !s107 c:\Users\86199\Desktop\verilogs\mips_cpu\src\mem.sv|
-Z21 !s90 -nologo|-work|C:\Users\86199\Desktop\verilogs\mips_cpu\work|c:\Users\86199\Desktop\verilogs\mips_cpu\src\mem.sv|
+R6
+R7
+R8
 !i113 1
 R9
 R10
@@ -162,9 +162,9 @@ R2
 R3
 S1
 R4
-Z22 w1765163694
-Z23 8src/reg32.sv
-Z24 Fsrc/reg32.sv
+Z17 w1765163694
+Z18 8src/reg32.sv
+Z19 Fsrc/reg32.sv
 L0 1
 R5
 r1
@@ -178,25 +178,25 @@ R9
 R10
 vreg_file
 R0
-R14
+R1
 !i10b 1
-!s100 NSz:FGS`2@NjPQ`e_MeYW0
-IajScPY369]KhY=CKL`ejd0
+!s100 KaSCZGnI@]A_oT7]o>jng0
+IX4=2b?d5gfI;oOUbJlaOG0
 R2
-R15
+R3
 S1
 R4
+R14
+R15
 R16
-R17
-R18
 L0 17
 R5
 r1
 !s85 0
 31
-R19
-R20
-R21
+R6
+R7
+R8
 !i113 1
 R9
 R10
@@ -210,9 +210,9 @@ R2
 R3
 S1
 R4
-R22
-R23
-R24
+R17
+R18
+R19
 L0 13
 R5
 r1
@@ -226,25 +226,25 @@ R9
 R10
 vrom
 R0
-R14
+R1
 !i10b 1
-!s100 <M5gK3Zn7QW0n65VDJ>La2
-Ijdlz_ccbN@eXj`dng4XNX1
+!s100 G:?@z^17egL^aRMBEO[<>1
+I9A4?dcbafhcXbNk?MHMIC0
 R2
-R15
+R3
 S1
 R4
+R14
+R15
 R16
-R17
-R18
-L0 42
+L0 40
 R5
 r1
 !s85 0
 31
-R19
-R20
-R21
+R6
+R7
+R8
 !i113 1
 R9
 R10
@@ -252,13 +252,13 @@ vsingle_cycle_cpu
 R0
 R1
 !i10b 1
-!s100 GU:OFKI=eCjHX_8@YJRcm3
-IZ:VILXgZPI=d`[`=dMGoU2
+!s100 ZNNGN[FglC>=eX;F]8Q[j3
+I;^1eR`;c0Bf8J]>PGTDB42
 R2
 R3
 S1
 R4
-w1765196201
+w1765198407
 8src/single_cycle_cpu.sv
 Fsrc/single_cycle_cpu.sv
 L0 6
@@ -276,13 +276,13 @@ vtb_cpu
 R0
 R1
 !i10b 1
-!s100 8`a4V1l>o>F@=fQQI43DP1
-IUScDW4TgJb0nZfeb7nHQo0
+!s100 lGi;>]8dnRQKP@TAGchkb2
+I6mRP>fZ5?e4MPaJZ:?ZU?2
 R2
 R3
 S1
 R4
-w1765196351
+w1765200828
 8c:\Users\86199\Desktop\verilogs\mips_cpu\tb\arith_tb.sv
 Fc:\Users\86199\Desktop\verilogs\mips_cpu\tb\arith_tb.sv
 L0 4
