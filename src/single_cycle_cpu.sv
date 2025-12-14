@@ -9,7 +9,7 @@ module single_cycle_cpu #(
 	input logic clk,
 	input logic reset,
 
-	output logic [31:0] [31:0] regs_debug,
+	output logic [31:0] regs_debug [0:31],
     output logic [31:0] pc_debug,
     output logic [31:0] instr_debug
 );

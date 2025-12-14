@@ -19,10 +19,10 @@ module reg_file (
     input logic [4:0] r_reg1, r_reg2, w_reg,
     input logic [31:0] w_data,
     output logic [31:0] r_data1, r_data2,
-    output logic [31:0] [31:0] regs_debug	// iverilog对 logic [31:0] regs_debug [0:31] 基本不支持！
+    output logic [31:0] regs_debug [0:31]	// iverilog对 logic [31:0] regs_debug [0:31] 基本不支持！
 );
 
-logic [31:0] [31:0] regs;
+logic [31:0] regs [0:31];
 
 assign r_data1 = (r_reg1 == 5'b0) ? 32'b0 : regs[r_reg1];
 assign r_data2 = (r_reg2 == 5'b0) ? 32'b0 : regs[r_reg2];

@@ -1,1 +1,5 @@
 work/
+*.wlf
+transcript
+vsim.wlf
+*.udo
