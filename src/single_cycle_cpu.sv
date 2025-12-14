@@ -1,7 +1,8 @@
-`include "src/alu.sv"
-`include "src/cu.sv"
-`include "src/mem.sv"
-`include "src/reg32.sv"
+`include "src/datapath/alu.sv"
+`include "src/controller/cu.sv"
+`include "src/datapath/mem.sv"
+`include "src/datapath/reg32.sv"
+
 
 module single_cycle_cpu #(
     parameter int MEM_DEPTH = 1024
@@ -28,7 +29,7 @@ logic wreg_dst_sel, reg_we, is_alub_imm,
 	  mem_rd, mem_we, wrbck_sel, 
 	  is_beq, is_jmp;
 logic [1:0] aluop;
-mcu i_mcu(instr[31:26],  
+singlecyc_mcu i_mcu(instr[31:26],  
 		  wreg_dst_sel, reg_we, is_alub_imm,  
 		  mem_rd, mem_we, wrbck_sel, 
 		  is_beq, is_jmp, 

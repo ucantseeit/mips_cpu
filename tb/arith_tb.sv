@@ -23,6 +23,10 @@ module tb_cpu;
         .instr_debug(instr)
     );
 
+	initial begin
+    	$readmemh("test_programs/arith_test.hex", dut.instr_ram.mem);
+	end
+
     initial begin
         $display("Starting CPU test with file-based memory...");
 

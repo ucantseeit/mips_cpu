@@ -1,5 +1,5 @@
-`include "src/adder.sv"
-`include "src/comparator.sv"
+`include "src/datapath/adder.sv"
+`include "src/datapath/comparator.sv"
 
 // 带符号和无符号加减法用同一个adder
 // 比较运算通过比较器实现
