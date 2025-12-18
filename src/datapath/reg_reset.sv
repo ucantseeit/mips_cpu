@@ -1,15 +1,3 @@
-module reg32 (
-	input logic clk,
-	input logic [31:0] d,
-	output logic [31:0] q
-);
-	always_ff @( posedge clk ) begin
-		q <= d;
-	end
-	
-endmodule
-
-
 module reg_reset (
 	input logic clk, reset,
 	input logic [31:0] d,

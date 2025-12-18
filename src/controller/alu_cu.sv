@@ -1,93 +1,11 @@
-`define RR 6'b00_0000
-`define LW 6'b10_0011
-`define SW 6'b10_1011
-`define BR 6'b00_0100
-`define J  6'b00_0010
-
-`define ADDI  6'b00_1000
-`define ADDIU 6'b00_1001
-`define ANDI  6'b00_1100
-// `define LUI   6'b00_1111
-// `define ORI   6'b00_1101
-// `define SLTI  6'b00_1010
-// `define SLTIU 6'b00_1011
-// `define XORI  6'b00_1110
-
-`define BEQ   6'b00_0100
-
-
-`define ALUctrl_ADD   2'b00
-`define ALUctrl_SUB   2'b01
-`define ALUctrl_ADDU  2'b10
-`define ALUctrl_RR    2'b11
-
-
-module singlecyc_mcu (
-	input logic [5:0] opcode,
-	output logic wreg_dst_sel, reg_we, is_alub_imm, 
-	mem_rd, mem_wr, wrbck_sel, 
-	is_beq, jmp,
-	output logic [1:0] aluop
-);
-
-// alu_op: 00是有符号加，01是有符号减，10是无符号加，11是RR型
-always_comb begin
-    // 默认全0（包括 aluop = ADD）
-    {wreg_dst_sel, reg_we, is_alub_imm, mem_rd, mem_wr, wrbck_sel, is_beq, jmp} = 8'b0;
-    aluop = `ALUctrl_ADD;
-
-    case (opcode)
-        `RR: begin 
-			{wreg_dst_sel, reg_we} = 2'b11; 
-			aluop = `ALUctrl_RR;  end
-        `LW: begin 
-			{reg_we, is_alub_imm, mem_rd, wrbck_sel} = 4'b1111; 
-    		aluop = `ALUctrl_ADD; end
-        `SW: begin 
-			{is_alub_imm, mem_wr} = 2'b11; 
-    		aluop = `ALUctrl_ADD; end
-        `BR: begin 
-			is_beq = 1'b1; 
-			aluop = `ALUctrl_SUB; end
-        `J: begin 
-			jmp = 1'b1; 
-    		aluop = `ALUctrl_ADD; end
-        `ADDI: begin 
-			{reg_we, is_alub_imm} = 2'b11; 
-    		aluop = `ALUctrl_ADD; end
-        `ADDIU: begin 
-			{reg_we, is_alub_imm} = 2'b11; 
-			aluop = `ALUctrl_ADDU; end
-        default:;
-    endcase
-end
-	
-endmodule
-
-
-module multcyc_mcu (
-	input logic clk, reset, 
-	input logic [5:0] opcode,
-	output logic wreg_dst_sel, reg_we, is_alub_imm, 
-	mem_rd, mem_wr, wrbck_sel, 
-	is_beq, jmp,
-	output logic [1:0] aluop
-);
-	
-endmodule
-
-
-
-
-
-
-
 // alu_ctrl的内容与标准教材略有不同，是我精心设计的
 module alu_cu (
 	input logic [1:0] aluop,
 	input logic [5:0] funct,
 	output logic [3:0] alu_ctrl
 );
+
+import ALUops::*;
 
 // 以下是RR型的funct码
 localparam ADD  = 6'b10_0000;
@@ -137,9 +55,9 @@ localparam ALU_SRA  = 4'b1110;
 localparam ALU_SRAV = 4'b1111;
 
 always_comb begin 
-	if (aluop == 2'b00) alu_ctrl = ALU_ADD;			// 为了LW与SW
-	else if (aluop == 2'b01) alu_ctrl = ALU_SUB;	// 为了BEQ
-	else if (aluop == 2'b10) alu_ctrl = ALU_ADDU;	// 为了ADDUI
+	if (aluop == ALUop_ADD) alu_ctrl = ALU_ADD;			// 为了LW与SW
+	else if (aluop == ALUop_SUB) alu_ctrl = ALU_SUB;	// 为了BEQ
+	else if (aluop == ALUop_ADDU) alu_ctrl = ALU_ADDU;	// 为了ADDUI
 	else begin										// RR型
 		case (funct)
 			ADD  : alu_ctrl = ALU_ADD;
