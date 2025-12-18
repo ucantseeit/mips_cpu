@@ -1,9 +1,3 @@
-`include "src/datapath/alu.sv"
-`include "src/controller/multicyc_mcu.sv"
-`include "src/datapath/mem.sv"
-`include "src/controller/alu_cu.sv"
-// `include "src/datapath/reg_reset.sv"
-
 
 module multi_cycle_cpu #(
     parameter int MEM_DEPTH = 1024
@@ -45,7 +39,6 @@ always_ff @( posedge clk ) begin
 	if (reset) pc <= 32'b0;
 	else if (pc_we) pc <= next_pc;
 end
-// reg_reset pc_reg(.clk(clk), .reset(reset), .d(next_pc), .q(pc));
 
 logic [31:0] aluout_nxt, mem_addr;
 always_comb begin 

@@ -1,8 +1,4 @@
-`include "src/datapath/alu.sv"
-`include "src/controller/singlecyc_cu.sv"
-`include "src/controller/alu_cu.sv"
-`include "src/datapath/mem.sv"
-`include "src/datapath/reg_reset.sv"
+// TODO: 信号标注，更多指令（如乘法）
 
 
 module single_cycle_cpu #(
@@ -81,7 +77,6 @@ assign jmp_pc = {pc_plus4[31:28], instr[25:0], 2'b0};
 assign next_pc = is_jmp ? jmp_pc :
 						  (take_beq ? pc_branch : pc_plus4);
 
-// assign pc = reset ? 32'h0 : next_pc;
 assign pc_debug = pc;
 assign instr_debug = instr;
 

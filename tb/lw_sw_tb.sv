@@ -5,7 +5,7 @@ module tb_cpu;
 	typedef enum int { SingleCyc, MultiCyc } CpuType;
 	localparam CpuType ct = MultiCyc;
 
-    localparam int MEM_DEPTH = 256;
+    localparam int MEM_DEPTH = 1024;
 	logic clk, reset;
 
     always #5 clk = ~clk;
@@ -28,7 +28,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/arith_test.hex", dut.i_ram.mem);
+            initial $readmemh("test_programs/lw_sw.hex", dut.i_ram.mem);
         end else begin : cpu_inst
             single_cycle_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
                 .clk(clk),
@@ -37,7 +37,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/arith_test.hex", dut.instr_ram.mem);
+            initial $readmemh("test_programs/lw_sw.hex", dut.instr_ram.mem);
         end
     endgenerate
 
@@ -48,20 +48,18 @@ module tb_cpu;
         reset = 1;
         wait_cycles(2);
         reset = 0;
+
 		if (ct == MultiCyc)
 			wait_cycles(110);
 		else
     	    wait_cycles(25);  // Run all 22 instructions
 
-		// 注意, 若执行了j指令, pc值会突然变大(h0000028->h00400030), 但不影响结果
-		// 这不是错误，因为mars得到的机械码实际会把零地址放到h00400000, 而我们的iram不够大，自动忽略了高位。
-		assert (regs[16] == 32'h0000002A) else $error("beq taken failed: $s0 = %0d", regs[16]);
-		assert (regs[17] == 32'h00000058) else $error("beq not-taken failed: $s1 = %0d", regs[17]);
-		assert (regs[18] == 32'h0000004D) else $error("j failed: $s2 = %0d", regs[18]);
-		assert (regs[19] == 32'h00000000) else $error("error path taken: $s3 should be 0, got %0d", regs[19]);
+		assert (regs[8]  == 32'h1234) else $error("Error: $t0 ($8) should be 0x1234, got %0h", regs[8]);   // $t0 未被修改
+		assert (regs[9]  == 32'h1234) else $error("Error: $t1 ($9) should be loaded value 0x1234, got %0h", regs[9]); // $t1 = lw result
+		assert (regs[16] == 32'h00000000) else $error("Error: $s0 ($16) should be 0 (sub result), got %0h", regs[16]);     // $s0 = $t0 - $t1 = 0
+		assert (regs[2]  == 32'h0000000A) else $error("Error: $v0 ($2) should be 10, got %0h", regs[2]);               // li $v0, 10
 
-		$display("reach beq and j tests end!");
+		$display("reach lw and sw tests end!");
 		$finish;
     end
 endmodule
-

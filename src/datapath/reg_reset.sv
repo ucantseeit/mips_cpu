@@ -1,3 +1,5 @@
+// 即将被舍弃的简单模块（不如内联）
+
 module reg_reset (
 	input logic clk, reset,
 	input logic [31:0] d,

@@ -1,11 +1,9 @@
 `timescale 1ns / 1ps
-// `include "src/single_cycle_cpu.sv"
-`include "src/multi_cycle_cpu.sv"
 
 
 module tb_cpu;
-	// typedef enum int { SingleCyc, MultiCyc } CpuType;
-	// localparam CpuType ct = MultiCyc;
+	typedef enum int { SingleCyc, MultiCyc } CpuType;
+	localparam CpuType ct = MultiCyc;
 
     localparam int MEM_DEPTH = 256;
 	logic clk, reset;
@@ -20,30 +18,29 @@ module tb_cpu;
     // 调试信号
     logic [31:0] pc, instr;
 
-	// if (ct == MultiCyc) begin :gen_dut
-		multi_cycle_cpu #(.MEM_DEPTH(256)) dut (
-			.clk(clk),
-			.reset(reset),
-			.regs_debug(regs),
-			.pc_debug(pc),
-			.instr_debug(instr)
-		);  
-		// end
-	// else begin: gen_dut
-	// 	single_cycle_cpu #(.MEM_DEPTH(256)) dut (
-	// 		.clk(clk),
-	// 		.reset(reset),
-	// 		.regs_debug(regs),
-	// 		.pc_debug(pc),
-	// 		.instr_debug(instr)
-	// 	); end
 
-	initial begin
-		// if (ct == MultiCyc)
-    		$readmemh("test_programs/arith_test.hex", dut.i_ram.mem);
-		// else
-		// 	$readmemh("test_programs/arith_test.hex", dut.instr_ram.mem);
-	end
+    // 只例化一个 DUT —— 使用 generate
+    generate
+        if (ct == MultiCyc) begin : cpu_inst
+            multi_cycle_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
+                .clk(clk),
+                .reset(reset),
+                .regs_debug(regs),
+                .pc_debug(pc),
+                .instr_debug(instr)
+            );
+            initial $readmemh("test_programs/arith_test.hex", dut.i_ram.mem);
+        end else begin : cpu_inst
+            single_cycle_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
+                .clk(clk),
+                .reset(reset),
+                .regs_debug(regs),
+                .pc_debug(pc),
+                .instr_debug(instr)
+            );
+            initial $readmemh("test_programs/arith_test.hex", dut.instr_ram.mem);
+        end
+    endgenerate
 
     initial begin
         $display("Starting CPU test with file-based memory...");
@@ -53,10 +50,10 @@ module tb_cpu;
         wait_cycles(2);
         reset = 0;
 		// Run all 22 instructions
-		// if (ct == MultiCyc)
+		if (ct == MultiCyc)
         	wait_cycles(110);  
-		// else
-		// 	wait_cycles(25);
+		else
+			wait_cycles(25);
 		
 		// I-type results
 		assert (regs[8]  == 32'h0000000A) else $error("Error: li $t0 = 10 failed: got %0d", regs[8]);      // $t0

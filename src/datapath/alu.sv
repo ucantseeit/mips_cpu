@@ -1,11 +1,10 @@
-`include "src/datapath/adder.sv"
-`include "src/datapath/comparator.sv"
-
 // 带符号和无符号加减法用同一个adder
 // 比较运算通过比较器实现
 // 乘法器和除法器独立于ALU存在
 // 有趣的是，没有"非"等一系列常见操作，因为可以用其它的实现
 // tradeoff: mcu复杂度和alu_cu复杂度(alu中加入了shifter)
+
+
 module alu (input logic [31:0] a, b,
 			input logic [4:0] shamt,
             input logic [3:0] alu_ctrl,

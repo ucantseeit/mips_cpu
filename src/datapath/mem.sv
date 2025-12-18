@@ -50,11 +50,6 @@ module rom #(
 
     assign data = mem[mem_addr];
 	
-	// initial begin
-    //     $readmemh("beq_jmp.hex", mem);
-	// 	$display("ROM[0] = %h", mem[0]);
-    // 	$display("ROM[1] = %h", mem[1]);
-    // end
 endmodule
 
 
