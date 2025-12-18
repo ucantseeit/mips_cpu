@@ -28,7 +28,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/arith_test.hex", dut.i_ram.mem);
+            initial $readmemh("test_programs/beq_jmp.hex", dut.i_ram.mem);
         end else begin : cpu_inst
             single_cycle_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
                 .clk(clk),
@@ -37,7 +37,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/arith_test.hex", dut.instr_ram.mem);
+            initial $readmemh("test_programs/beq_jmp.hex", dut.instr_ram.mem);
         end
     endgenerate
 

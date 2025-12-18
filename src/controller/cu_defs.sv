@@ -29,14 +29,15 @@ package MultcycCtrl;
 	typedef enum logic {AddrPC, AddrALUout} mem_addr_sel_t;
 	typedef enum logic {SrcaPC, SrcaRs} alu_srca_sel_t;
 	typedef enum logic [1:0] {
-		SrcbRt, Four, SrcbImm
+		SrcbRt, Four, SrcbImm, BeqImm
 	} alu_srcb_sel_t;
 	typedef enum logic {WrRt, WrRd} wreg_dst_sel_t;
 	typedef enum logic {ALUout, MemData} wrbck_data_sel_t;
+	typedef enum logic [1:0] { PCPlus4, PCBranch, PCJmp } nxt_pc_sel;
 
 	typedef enum logic [3:0] {
 		Fetch, Decode, MemAddr, MemRd, 
-		MemWrbck, MemWr, RRExec, ALURRWrbck, Beq, 
+		MemWrbck, MemWr, RRExec, ALURRWrbck, Beq, Jmp,
 		AddiExec, ALURIWrbck, AddiuExec
 	} state_type;	
 endpackage

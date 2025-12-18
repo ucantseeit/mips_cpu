@@ -19,28 +19,41 @@ logic mem_addr_sel, ir_we,
 	reg_we, pc_we, 
 	wreg_dst_sel, wrbck_data_sel;
 logic [1:0] alu_srcb_sel, aluop;
+logic [1:0] nxt_pc_sel;
+logic is_beq, is_jmp;
 multicyc_mcu cu(clk, reset, instr[31:26],
 	mem_addr_sel, ir_we,
 	alu_srca_sel, alu_srcb_sel, 
 	aluop, 
 	mem_rd, mem_wr, 
 	reg_we, pc_we, 
-	wreg_dst_sel, wrbck_data_sel);
+	wreg_dst_sel, wrbck_data_sel,
+	nxt_pc_sel,
+	is_beq, is_jmp
+);
 
 logic [3:0] alu_ctrl;
 alu_cu i_alu_cu(aluop, instr[5:0], alu_ctrl);
 
-logic [31:0] aluout;
+logic [31:0] aluout, aluout_nxt;
 logic [31:0] next_pc, pc;
 always_comb begin 
-	next_pc = aluout;
+	case (nxt_pc_sel)
+		PCPlus4 : next_pc = aluout;
+		PCBranch : next_pc = aluout_nxt;
+		PCJmp : next_pc = {pc[31:28], instr[25:0], 2'b00};
+		default : next_pc = pc;
+	endcase
 end
+
+logic eq;
 always_ff @( posedge clk ) begin
 	if (reset) pc <= 32'b0;
 	else if (pc_we) pc <= next_pc;
+	else if (is_beq && eq) pc <= next_pc;
 end
 
-logic [31:0] aluout_nxt, mem_addr;
+logic [31:0] mem_addr;
 always_comb begin 
 	case (mem_addr_sel)
 		AddrPC: mem_addr = pc;
@@ -104,11 +117,12 @@ always_comb begin
 		SrcbRt:  alu_srcb = r_data2_nxt;
 		Four:    alu_srcb = 32'b100;
 		SrcbImm: alu_srcb = $signed(instr[15:0]);
+		BeqImm:  alu_srcb = $signed({instr[15:0], 2'b00});
 		default: alu_srcb = 32'b0;
 	endcase
 end
 
-logic eq, overflow;
+logic overflow;
 alu i_alu(alu_srca, alu_srcb, instr[10:6],
 		  alu_ctrl, aluout, eq, overflow);
 
