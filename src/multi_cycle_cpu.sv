@@ -18,7 +18,8 @@ logic mem_addr_sel, ir_we,
 	mem_rd, mem_wr, 
 	reg_we, pc_we, 
 	wreg_dst_sel, wrbck_data_sel;
-logic [1:0] alu_srcb_sel, aluop;
+logic [1:0] alu_srcb_sel;
+logic [3:0] aluop;
 logic [1:0] nxt_pc_sel;
 logic is_beq, is_jmp;
 multicyc_mcu cu(clk, reset, instr[31:26],

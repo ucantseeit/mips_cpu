@@ -11,7 +11,7 @@ module multicyc_mcu (
 	output logic mem_addr_sel, ir_we,
 	output logic alu_srca_sel, 
 	output logic [1:0]alu_srcb_sel, 
-	output logic [1:0] aluop, 
+	output logic [3:0] aluop, 
 	output logic mem_rd, mem_wr, 
 				reg_we, pc_we, 
 				wreg_dst_sel, wrbck_data_sel,
@@ -50,13 +50,15 @@ always_comb begin
 			ir_we = 1;
 			pc_we = 1;	end
 		Decode: begin
-			if (opcode == LW || opcode == SW) next_state = MemAddr;
-			else if (opcode == RR) next_state = RRExec;
-			else if (opcode == ADDI) next_state = AddiExec;
-			else if (opcode == ADDIU) next_state = AddiuExec;
-			else if (opcode == BR) next_state = Beq;
-			else if (opcode == J) next_state = Jmp;
-			else next_state = 0; 
+			case (opcode)
+				LW, SW: next_state = MemAddr;
+				RR: next_state = RRExec;
+				BR: next_state = Beq;
+				J : next_state = Jmp;
+				ADDI, ADDIU, ANDI, ORI, XORI: next_state = RIExec;
+				default: next_state = 0; 
+			endcase
+			// for beq
 			alu_srca_sel = AddrPC;
 			alu_srcb_sel = BeqImm;
 			aluop = ALUop_ADD; end
@@ -79,26 +81,28 @@ always_comb begin
 			wrbck_data_sel = MemData;
 			reg_we = 1; end
 		RRExec: begin
-			next_state = ALURRWrbck;
+			next_state = RRWrbck;
 			alu_srca_sel = SrcaRs;
 			alu_srcb_sel = SrcbRt;
 			aluop = ALUop_RR; end
-		ALURRWrbck: begin
+		RRWrbck: begin
 			next_state = Fetch;
 			wreg_dst_sel = WrRd;
 			wrbck_data_sel = ALUout;
 			reg_we = 1; end
-		AddiExec: begin
-			next_state = ALURIWrbck;
+		RIExec: begin
+			next_state = RIWrbck;
 			alu_srca_sel = SrcaRs;
 			alu_srcb_sel = SrcbImm;
-			aluop = ALUop_ADD; end
-		AddiuExec: begin
-			next_state = ALURIWrbck;
-			alu_srca_sel = SrcaRs;
-			alu_srcb_sel = SrcbImm;
-			aluop = ALUop_ADDU; end
-		ALURIWrbck: begin
+			case (opcode)
+				ADDI:  aluop = ALUop_ADD;
+				ADDIU: aluop = ALUop_ADDU;
+				ANDI:  aluop = ALUop_AND;
+				ORI:   aluop = ALUop_OR;
+				XORI:  aluop = ALUop_XOR;
+				default: aluop = 0;
+			endcase  end
+		RIWrbck: begin
 			next_state = Fetch;
 			wreg_dst_sel = WrRt;
 			wrbck_data_sel = ALUout;

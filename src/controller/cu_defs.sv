@@ -8,20 +8,22 @@ package Opcodes;
 	parameter ADDI  = 6'b00_1000;
 	parameter ADDIU = 6'b00_1001;
 
-	// parameter ANDI  = 6'b00_1100;
+	parameter ANDI  = 6'b00_1100;
+	parameter ORI   = 6'b00_1101;
+	parameter XORI  = 6'b00_1110;
 	// parameter LUI   = 6'b00_1111;
-	// parameter ORI   = 6'b00_1101;
 	// parameter SLTI  = 6'b00_1010;
 	// parameter SLTIU  =6'b00_1011;
-	// parameter XORI  = 6'b00_1110;
 
 	parameter BEQ   = 6'b00_0100;
 endpackage
 
 package ALUops;
-	typedef enum logic [1:0] {
-		ALUop_ADD, ALUop_SUB, 
-		ALUop_ADDU, ALUop_RR
+	typedef enum logic [3:0] {
+		ALUop_ADD, ALUop_SUB,
+		ALUop_ADDU, 
+		ALUop_AND, ALUop_OR,
+		ALUop_XOR, ALUop_RR
 	} ALUop_t;
 endpackage
 
@@ -37,7 +39,7 @@ package MultcycCtrl;
 
 	typedef enum logic [3:0] {
 		Fetch, Decode, MemAddr, MemRd, 
-		MemWrbck, MemWr, RRExec, ALURRWrbck, Beq, Jmp,
-		AddiExec, ALURIWrbck, AddiuExec
+		MemWrbck, MemWr, RRExec, RRWrbck, Beq, Jmp,
+		RIExec, RIWrbck
 	} state_type;	
 endpackage

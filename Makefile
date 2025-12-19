@@ -42,6 +42,7 @@ CPU_SRC = \
 ARITH_TB  = tb/arith_tb.sv
 BEQJMP_TB = tb/beq_jmp_tb.sv
 LWSW_TB   = tb/lw_sw_tb.sv
+CHECKSUM_TB = tb/checksum_tb.sv
 
 # All source in correct compile order
 SRC_FILES = \
@@ -74,6 +75,9 @@ compile_beqjmp: compile
 compile_lwsw: compile
 	$(VLOG) -work $(WORKLIB) -sv $(LWSW_TB)
 
+compile_checksum: compile
+	$(VLOG) -work $(WORKLIB) -sv $(CHECKSUM_TB)
+	
 # 清理
 clean:
 	rm -rf $(WORKLIB) transcript vsim.wlf

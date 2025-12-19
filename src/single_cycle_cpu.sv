@@ -31,7 +31,7 @@ wrbck_sel控制将被写入的寄存器的数据的来源
 logic wreg_dst_sel, reg_we, is_alub_imm, 
 	  mem_rd, mem_we, wrbck_sel, 
 	  is_beq, is_jmp;
-logic [1:0] aluop;
+logic [3:0] aluop;
 singlecyc_mcu i_mcu(instr[31:26],  
 		  wreg_dst_sel, reg_we, is_alub_imm,  
 		  mem_rd, mem_we, wrbck_sel, 

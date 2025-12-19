@@ -1,6 +1,6 @@
 // alu_ctrl的内容与标准教材略有不同，是我精心设计的
 module alu_cu (
-	input logic [1:0] aluop,
+	input logic [3:0] aluop,
 	input logic [5:0] funct,
 	output logic [3:0] alu_ctrl
 );
@@ -55,11 +55,15 @@ localparam ALU_SRA  = 4'b1110;
 localparam ALU_SRAV = 4'b1111;
 
 always_comb begin 
-	if (aluop == ALUop_ADD) alu_ctrl = ALU_ADD;			// 为了LW与SW
-	else if (aluop == ALUop_SUB) alu_ctrl = ALU_SUB;	// 为了BEQ
-	else if (aluop == ALUop_ADDU) alu_ctrl = ALU_ADDU;	// 为了ADDUI
-	else begin										// RR型
-		case (funct)
+	case (aluop)
+		ALUop_ADD: alu_ctrl = ALU_ADD;
+		ALUop_SUB: alu_ctrl = ALU_SUB;
+		ALUop_ADDU: alu_ctrl = ALU_ADDU;
+		ALUop_AND: alu_ctrl = ALU_AND;
+		ALUop_OR: alu_ctrl = ALU_OR;
+		ALUop_XOR: alu_ctrl = ALU_XOR;
+		default: begin
+			case (funct)
 			ADD  : alu_ctrl = ALU_ADD;
 			ADDU : alu_ctrl = ALU_ADDU;
 			SUB  : alu_ctrl = ALU_SUB;
@@ -79,7 +83,8 @@ always_comb begin
 			SRAV : alu_ctrl = ALU_SRAV;
 			default: alu_ctrl = 4'b1111;
 		endcase
-	end
+		end
+	endcase
 end
 	
 endmodule

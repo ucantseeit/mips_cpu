@@ -9,7 +9,7 @@ module singlecyc_mcu (
 	output logic wreg_dst_sel, reg_we, is_alub_imm, 
 	mem_rd, mem_wr, wrbck_sel, 
 	is_beq, jmp,
-	output logic [1:0] aluop
+	output logic [3:0] aluop
 );
 
 import ALUops::*;
