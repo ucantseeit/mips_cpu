@@ -2,7 +2,7 @@ package Opcodes;
 	parameter RR = 6'b00_0000;
 	parameter LW = 6'b10_0011;
 	parameter SW = 6'b10_1011;
-	parameter BR = 6'b00_0100;
+	parameter BEQ = 6'b00_0100;
 	parameter J  = 6'b00_0010;
 
 	parameter ADDI  = 6'b00_1000;
@@ -15,7 +15,12 @@ package Opcodes;
 	// parameter SLTI  = 6'b00_1010;
 	// parameter SLTIU  =6'b00_1011;
 
-	parameter BEQ   = 6'b00_0100;
+	// parameter BEQ   = 6'b00_0100;
+	// parameter BNE   = 6'b00_0101;
+	// parameter BGEZ  = 6'b00_0001;
+	// parameter BLTZ  = 6'b00_0001;
+	// parameter BLEZ  = 6'b00_0110;
+	// parameter BGTZ  = 6'b00_0111;
 endpackage
 
 package ALUops;

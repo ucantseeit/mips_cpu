@@ -30,7 +30,7 @@ always_comb begin
         SW: begin 
 			{is_alub_imm, mem_wr} = 2'b11; 
     		aluop = ALUop_ADD; end
-        BR: begin 
+        BEQ: begin 
 			is_beq = 1'b1; 
 			aluop = ALUop_SUB; end
         J: begin 

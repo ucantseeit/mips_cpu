@@ -53,7 +53,7 @@ always_comb begin
 			case (opcode)
 				LW, SW: next_state = MemAddr;
 				RR: next_state = RRExec;
-				BR: next_state = Beq;
+				BEQ: next_state = Beq;
 				J : next_state = Jmp;
 				ADDI, ADDIU, ANDI, ORI, XORI: next_state = RIExec;
 				default: next_state = 0; 

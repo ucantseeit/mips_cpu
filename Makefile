@@ -80,4 +80,4 @@ compile_checksum: compile
 	
 # 清理
 clean:
-	rm -rf $(WORKLIB) transcript vsim.wlf
+	rm wlft* transcript vsim.wlf
