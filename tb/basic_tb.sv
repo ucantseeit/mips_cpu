@@ -28,7 +28,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/lw_sw.hex", dut.i_ram.mem);
+            initial $readmemh("test_programs/basic.hex", dut.i_ram.mem);
         end else begin : cpu_inst
             single_cycle_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
                 .clk(clk),
@@ -37,7 +37,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/lw_sw.hex", dut.instr_ram.mem);
+            initial $readmemh("test_programs/basic.hex", dut.instr_ram.mem);
         end
     endgenerate
 
@@ -50,16 +50,16 @@ module tb_cpu;
         reset = 0;
 
 		if (ct == MultiCyc)
-			wait_cycles(110);
+			wait_cycles(50);
 		else
-    	    wait_cycles(25);  // Run all 22 instructions
+    	    wait_cycles(10);  // Run all 22 instructions
 
-		assert (regs[8]  == 32'h1234) else $error("Error: $t0 ($8) should be 0x1234, got %0h", regs[8]);   // $t0 未被修改
-		assert (regs[9]  == 32'h1234) else $error("Error: $t1 ($9) should be loaded value 0x1234, got %0h", regs[9]); // $t1 = lw result
-		assert (regs[16] == 32'h00000000) else $error("Error: $s0 ($16) should be 0 (sub result), got %0h", regs[16]);     // $s0 = $t0 - $t1 = 0
-		assert (regs[2]  == 32'h0000000A) else $error("Error: $v0 ($2) should be 10, got %0h", regs[2]);               // li $v0, 10
+		assert (regs[8]  == 32'h8) else $error("Error: $t0 ($8) should be 0x8, got %0h", regs[8]); 
+		assert (regs[9]  == 32'h7) else $error("Error: $t1 ($9) should be 0x7, got %0h", regs[9]);
+		assert (regs[10]  == 32'hF) else $error("Error: $t2 ($8) should be 0xF, got %0h", regs[8]); 
+		assert (regs[11]  == 32'h1) else $error("Error: $t3 ($8) should be 0x1, got %0h", regs[8]); 
 
-		$display("reach lw and sw tests end!");
+		$display("reach basic test end!");
 		$finish;
     end
 endmodule

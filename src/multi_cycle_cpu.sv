@@ -28,39 +28,40 @@ multicyc_mcu cu(clk, reset, instr[31:26],
 	aluop, 
 	mem_rd, mem_wr, 
 	reg_we, pc_we, 
-	wreg_dst_sel, wrbck_data_sel,
-	nxt_pc_sel,
-	is_beq, is_jmp
+	wreg_dst_sel, wrbck_data_sel
 );
 
 logic [3:0] alu_ctrl;
 alu_cu i_alu_cu(aluop, instr[5:0], alu_ctrl);
 
-logic [31:0] aluout, aluout_nxt;
+// 注意：next_pc的选择。
+/*
+	在一开始的时候，我们只知道next_pc的一个选择是aluout
+	但是，next_pc和aluout应该是两个信号
+	为了后续扩展方便，使用了这样的写法
+	其它信号也可以仿照
+*/
+logic [31:0] aluout;
 logic [31:0] next_pc, pc;
 always_comb begin 
-	case (nxt_pc_sel)
-		PCPlus4 : next_pc = aluout;
-		PCBranch : next_pc = aluout_nxt;
-		PCJmp : next_pc = {pc[31:28], instr[25:0], 2'b00};
-		default : next_pc = pc;
-	endcase
+	next_pc = aluout;
 end
 
-logic eq;
+// pc的定义，并不需要单独的module，因为pc逻辑相对比较简单
 always_ff @( posedge clk ) begin
 	if (reset) pc <= 32'b0;
 	else if (pc_we) pc <= next_pc;
-	else if (is_beq && eq) pc <= next_pc;
 end
 
 logic [31:0] mem_addr;
+logic [31:0] aluout_nxt;
 always_comb begin 
 	case (mem_addr_sel)
 		AddrPC: mem_addr = pc;
 		AddrALUout: mem_addr = aluout_nxt; 
 	endcase
 end
+
 
 logic [31:0] r_data2_nxt, mem_data;
 ram #(MEM_DEPTH) 
@@ -123,7 +124,7 @@ always_comb begin
 	endcase
 end
 
-logic overflow;
+logic overflow, eq;
 alu i_alu(alu_srca, alu_srcb, instr[10:6],
 		  alu_ctrl, aluout, eq, overflow);
 

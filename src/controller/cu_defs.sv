@@ -26,6 +26,8 @@ endpackage
 package ALUops;
 	typedef enum logic [3:0] {
 		ALUop_ADD, ALUop_SUB,
+
+		// 注意：以下是为了可能的RI型指令准备的
 		ALUop_ADDU, 
 		ALUop_AND, ALUop_OR,
 		ALUop_XOR, ALUop_RR
@@ -33,6 +35,7 @@ package ALUops;
 endpackage
 
 package MultcycCtrl;
+	// 注意：信号量的状态并没有完全列出，需根据书的内容补充
 	typedef enum logic {AddrPC, AddrALUout} mem_addr_sel_t;
 	typedef enum logic {SrcaPC, SrcaRs} alu_srca_sel_t;
 	typedef enum logic [1:0] {
@@ -40,11 +43,10 @@ package MultcycCtrl;
 	} alu_srcb_sel_t;
 	typedef enum logic {WrRt, WrRd} wreg_dst_sel_t;
 	typedef enum logic {ALUout, MemData} wrbck_data_sel_t;
-	typedef enum logic [1:0] { PCPlus4, PCBranch, PCJmp } nxt_pc_sel;
 
+	// 注意：mcu的状态并没有完全列出，需根据书的内容补充
 	typedef enum logic [3:0] {
 		Fetch, Decode, MemAddr, MemRd, 
-		MemWrbck, MemWr, RRExec, RRWrbck, Beq, Jmp,
-		RIExec, RIWrbck
+		MemWrbck, MemWr, RRExec, RRWrbck
 	} state_type;	
 endpackage

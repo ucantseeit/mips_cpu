@@ -1,9 +1,11 @@
 /* 
-wreg_dst_sel控制将被写入的寄存器的编号的来源，
+wreg_dst_sel 控制将被写入的寄存器的编号的来源，
 	0来自Instr[20:16](Rt)，1来自Instr[15:11](Rd)
-wrbck_sel控制将被写入的寄存器的数据的来源
+wrbck_data_sel 控制将被写入的寄存器的数据的来源
 	0来自aluout，1来自内存输出
 */
+
+// 注意：mcu的控制信号并没有完全列出，需根据书的内容补充
 module multicyc_mcu (
 	input logic clk, reset, 
 	input logic [5:0] opcode,
@@ -14,9 +16,7 @@ module multicyc_mcu (
 	output logic [3:0] aluop, 
 	output logic mem_rd, mem_wr, 
 				reg_we, pc_we, 
-				wreg_dst_sel, wrbck_data_sel,
-	output logic [1:0] nxt_pc_sel, 
-	output logic is_beq, is_jmp
+				wreg_dst_sel, wrbck_data_sel
 );
 
 import ALUops::*;
@@ -37,31 +37,23 @@ always_comb begin
 	{mem_addr_sel, ir_we} = 2'b0;
 	{alu_srca_sel, alu_srcb_sel, aluop} = 5'b0;
 	{mem_rd, mem_wr, reg_we, pc_we, wreg_dst_sel, wrbck_data_sel} = 6'b0;
-	{nxt_pc_sel, is_beq, is_jmp} = 4'b0;
 
 	case (curr_state)
+		// 状态机的例子
 		Fetch: begin
 			next_state = Decode;
 			mem_addr_sel = AddrPC;
 			alu_srca_sel = SrcaPC;
 			alu_srcb_sel = Four;
 			aluop = ALUop_ADD;
-			nxt_pc_sel = PCPlus4;
 			ir_we = 1;
 			pc_we = 1;	end
 		Decode: begin
 			case (opcode)
 				LW, SW: next_state = MemAddr;
 				RR: next_state = RRExec;
-				BEQ: next_state = Beq;
-				J : next_state = Jmp;
-				ADDI, ADDIU, ANDI, ORI, XORI: next_state = RIExec;
 				default: next_state = 0; 
-			endcase
-			// for beq
-			alu_srca_sel = AddrPC;
-			alu_srcb_sel = BeqImm;
-			aluop = ALUop_ADD; end
+			endcase end
 		MemAddr: begin
 			next_state = opcode == LW ? MemRd : MemWr;
 			alu_srca_sel = SrcaRs;
@@ -90,35 +82,6 @@ always_comb begin
 			wreg_dst_sel = WrRd;
 			wrbck_data_sel = ALUout;
 			reg_we = 1; end
-		RIExec: begin
-			next_state = RIWrbck;
-			alu_srca_sel = SrcaRs;
-			alu_srcb_sel = SrcbImm;
-			case (opcode)
-				ADDI:  aluop = ALUop_ADD;
-				ADDIU: aluop = ALUop_ADDU;
-				ANDI:  aluop = ALUop_AND;
-				ORI:   aluop = ALUop_OR;
-				XORI:  aluop = ALUop_XOR;
-				default: aluop = 0;
-			endcase  end
-		RIWrbck: begin
-			next_state = Fetch;
-			wreg_dst_sel = WrRt;
-			wrbck_data_sel = ALUout;
-			reg_we = 1; end
-		Beq: begin
-			next_state = Fetch;
-			alu_srca_sel = SrcaRs;
-			alu_srcb_sel = SrcbRt;
-			aluop = ALUop_SUB;
-			nxt_pc_sel = PCBranch;
-			is_beq = 1; end
-		Jmp: begin
-			next_state = Fetch;
-			nxt_pc_sel = PCJmp;
-			pc_we = 1;
-		end
 		default: ;
 	endcase
 end

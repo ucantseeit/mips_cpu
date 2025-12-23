@@ -39,6 +39,7 @@ CPU_SRC = \
 	$(SRC_DIR)/multi_cycle_cpu.sv
 
 # Testbenches
+BASIC_TB  = tb/basic_tb.sv
 ARITH_TB  = tb/arith_tb.sv
 BEQJMP_TB = tb/beq_jmp_tb.sv
 LWSW_TB   = tb/lw_sw_tb.sv
@@ -66,6 +67,9 @@ compile: $(WORKLIB)
 	$(VLOG) -work $(WORKLIB) -sv $(SRC_FILES)
 
 # 编译 tb
+compile_basic: compile
+	$(VLOG) -work $(WORKLIB) -sv $(BASIC_TB)
+
 compile_arith: compile
 	$(VLOG) -work $(WORKLIB) -sv $(ARITH_TB)
 
