@@ -48,41 +48,7 @@ always_comb begin
 			aluop = ALUop_ADD;
 			ir_we = 1;
 			pc_we = 1;	end
-		Decode: begin
-			case (opcode)
-				LW, SW: next_state = MemAddr;
-				RR: next_state = RRExec;
-				default: next_state = 0; 
-			endcase end
-		MemAddr: begin
-			next_state = opcode == LW ? MemRd : MemWr;
-			alu_srca_sel = SrcaRs;
-			alu_srcb_sel = SrcbImm;
-			aluop = ALUop_ADD; end
-		MemRd: begin
-			next_state = MemWrbck;
-			mem_addr_sel = AddrALUout;
-		end
-		MemWr: begin
-			next_state = Fetch;
-			mem_addr_sel = AddrALUout;
-			mem_wr = 1; end
-		MemWrbck: begin
-			next_state = Fetch;
-			wreg_dst_sel = WrRt;
-			wrbck_data_sel = MemData;
-			reg_we = 1; end
-		RRExec: begin
-			next_state = RRWrbck;
-			alu_srca_sel = SrcaRs;
-			alu_srcb_sel = SrcbRt;
-			aluop = ALUop_RR; end
-		RRWrbck: begin
-			next_state = Fetch;
-			wreg_dst_sel = WrRd;
-			wrbck_data_sel = ALUout;
-			reg_we = 1; end
-		default: ;
+
 	endcase
 end
 	
