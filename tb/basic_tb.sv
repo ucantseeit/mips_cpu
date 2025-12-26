@@ -1,12 +1,11 @@
 `timescale 1ns / 1ps
 
 
-// TODO: 为单周期CPU添加更多RI指令，使得支持这个tb
 module tb_cpu;
 	typedef enum int { SingleCyc, MultiCyc, Pipeline } CpuType;
 	localparam CpuType ct = MultiCyc;
 
-    localparam int MEM_DEPTH = 2048;
+    localparam int MEM_DEPTH = 1024;
 	logic clk, reset;
 
     always #5 clk = ~clk;
@@ -29,7 +28,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/checksum.hex", dut.i_ram.mem);
+            initial $readmemh("test_programs/basic.hex", dut.i_ram.mem);
         end else begin : cpu_inst
             single_cycle_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
                 .clk(clk),
@@ -38,7 +37,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/checksum.hex", dut.instr_ram.mem);
+            initial $readmemh("test_programs/basic.hex", dut.instr_ram.mem);
         end
     endgenerate
 
@@ -49,15 +48,18 @@ module tb_cpu;
         reset = 1;
         wait_cycles(2);
         reset = 0;
+
 		if (ct == MultiCyc)
-			wait_cycles(300);
+			wait_cycles(50);
 		else
-    	    wait_cycles(50);  // Run all instructions
+    	    wait_cycles(10);  // Run all 22 instructions
 
-		assert (regs[2] == 32'h000000AA) else $error("should get 0xAA, but got $v0 = %0d", regs[2]);
+		assert (regs[8]  == 32'h8) else $error("Error: $t0 ($8) should be 0x8, got %0h", regs[8]); 
+		assert (regs[9]  == 32'h7) else $error("Error: $t1 ($9) should be 0x7, got %0h", regs[9]);
+		assert (regs[10]  == 32'hF) else $error("Error: $t2 ($8) should be 0xF, got %0h", regs[8]); 
+		assert (regs[11]  == 32'h1) else $error("Error: $t3 ($8) should be 0x1, got %0h", regs[8]); 
 
-		$display("reach checksum test end!");
+		$display("reach basic test end!");
 		$finish;
     end
 endmodule
-

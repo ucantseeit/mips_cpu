@@ -15,7 +15,7 @@ import MultcycCtrl::*;
 logic [31:0] instr;
 logic mem_addr_sel, ir_we,
 	alu_srca_sel, 
-	mem_rd, mem_wr, 
+	mem_rd, mem_we, 
 	reg_we, pc_we, 
 	wreg_dst_sel, wrbck_data_sel;
 logic [1:0] alu_srcb_sel;
@@ -26,7 +26,7 @@ multicyc_mcu cu(clk, reset, instr[31:26],
 	mem_addr_sel, ir_we,
 	alu_srca_sel, alu_srcb_sel, 
 	aluop, 
-	mem_rd, mem_wr, 
+	mem_rd, mem_we, 
 	reg_we, pc_we, 
 	wreg_dst_sel, wrbck_data_sel,
 	nxt_pc_sel,
@@ -65,7 +65,7 @@ end
 logic [31:0] r_data2_nxt, mem_data;
 ram #(MEM_DEPTH) 
 	i_ram(.addr(mem_addr), .w_data(r_data2_nxt),
-		  .clk(clk), .we(mem_wr), .data(mem_data));
+		  .clk(clk), .we(mem_we), .data(mem_data));
 
 always_ff @( posedge clk ) begin 
 	if (ir_we) instr <= mem_data;

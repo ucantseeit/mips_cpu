@@ -31,14 +31,18 @@ CTRL_DEFS = $(CTRL_DIR)/cu_defs.sv
 CTRL_SRC = \
 	$(CTRL_DIR)/alu_cu.sv \
 	$(CTRL_DIR)/singlecyc_cu.sv \
-	$(CTRL_DIR)/multicyc_mcu.sv
+	$(CTRL_DIR)/multicyc_mcu.sv \
+	$(CTRL_DIR)/pipeline_hazard_unit.sv
 
 # 顶层 CPU（依赖 controller + datapath）
 CPU_SRC = \
 	$(SRC_DIR)/single_cycle_cpu.sv \
-	$(SRC_DIR)/multi_cycle_cpu.sv
+	$(SRC_DIR)/multi_cycle_cpu.sv \
+	$(SRC_DIR)/pipeline_cpu.sv
 
 # Testbenches
+BASIC_TB  = tb/basic_tb.sv
+BASIC_NOHAZARD_TB  = tb/basic_nohazard_tb.sv
 ARITH_TB  = tb/arith_tb.sv
 BEQJMP_TB = tb/beq_jmp_tb.sv
 LWSW_TB   = tb/lw_sw_tb.sv
@@ -66,6 +70,12 @@ compile: $(WORKLIB)
 	$(VLOG) -work $(WORKLIB) -sv $(SRC_FILES)
 
 # 编译 tb
+compile_basic: compile
+	$(VLOG) -work $(WORKLIB) -sv $(BASIC_TB)
+
+compile_nohazard: compile
+	$(VLOG) -work $(WORKLIB) -sv $(BASIC_NOHAZARD_TB)
+
 compile_arith: compile
 	$(VLOG) -work $(WORKLIB) -sv $(ARITH_TB)
 

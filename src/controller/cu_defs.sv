@@ -32,6 +32,12 @@ package ALUops;
 	} ALUop_t;
 endpackage
 
+package SinglecycCtrl;
+	typedef enum logic { SrcbRt, SrcbImm } alu_srcb_sel_t;
+	typedef enum logic { WrRt, WrRd } wreg_dst_sel_t;
+	typedef enum logic { ALUout, MemData } wrbck_data_sel_t;
+endpackage
+
 package MultcycCtrl;
 	typedef enum logic {AddrPC, AddrALUout} mem_addr_sel_t;
 	typedef enum logic {SrcaPC, SrcaRs} alu_srca_sel_t;
@@ -47,4 +53,14 @@ package MultcycCtrl;
 		MemWrbck, MemWr, RRExec, RRWrbck, Beq, Jmp,
 		RIExec, RIWrbck
 	} state_type;	
+endpackage
+
+package PipelineHazardCtrl;
+	typedef enum logic [1:0] { 
+		RsExe, ALUoutDm_a, ALUoutWrbck_a
+	 } forward_srca_exe_t;
+
+	typedef enum logic [1:0] { 
+		RtExe, ALUoutDm_b, ALUoutWrbck_b
+	 } forward_srcb_exe_t;
 endpackage

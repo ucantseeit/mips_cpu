@@ -1,6 +1,3 @@
-// TODO: 信号标注，更多指令（如乘法）
-
-
 module single_cycle_cpu #(
     parameter int MEM_DEPTH = 1024
 ) (
@@ -22,21 +19,20 @@ rom #(MEM_DEPTH)
 logic [31:0] pc_plus4;
 assign pc_plus4 = pc + 32'b100;
 
-/* 
-wreg_dst_sel控制将被写入的寄存器的编号的来源，
-	0来自Instr[20:16](Rt)，1来自Instr[15:11](Rd)
-wrbck_sel控制将被写入的寄存器的数据的来源
-	0来自aluout，1来自内存输出
-*/
-logic wreg_dst_sel, reg_we, is_alub_imm, 
-	  mem_rd, mem_we, wrbck_sel, 
+logic wreg_dst_sel, reg_we, alu_srcb_sel, 
+	  mem_rd, mem_we, wrbck_data_sel, 
 	  is_beq, is_jmp;
 logic [3:0] aluop;
-singlecyc_mcu i_mcu(instr[31:26],  
-		  wreg_dst_sel, reg_we, is_alub_imm,  
-		  mem_rd, mem_we, wrbck_sel, 
-		  is_beq, is_jmp, 
-		  aluop);
+singlecyc_mcu i_mcu(
+	instr[31:26],  
+	alu_srcb_sel,  
+	mem_rd, mem_we, 
+	reg_we, 
+	wreg_dst_sel, 
+	wrbck_data_sel, 
+	is_beq, is_jmp, 
+	aluop
+);
 
 logic [3:0] alu_ctrl;
 alu_cu i_alu_cu(aluop, instr[5:0], alu_ctrl);
@@ -53,7 +49,7 @@ reg_file i_reg_file(.clk(clk), 				   .we(reg_we),
 
 logic [31:0] sign_imm, b;
 assign sign_imm = { {16{instr[15]}}, instr[15:0] };
-assign b = is_alub_imm ? sign_imm : r_data2;
+assign b = alu_srcb_sel ? sign_imm : r_data2;
 logic [31:0] alu_res;
 logic eq, overflow;
 alu i_alu(.a(r_data1), .b(b), .shamt(instr[10:6]),
@@ -68,7 +64,7 @@ logic [31:0] mem_rd_data;
 ram #(MEM_DEPTH) data_ram(.addr(alu_res), .w_data(r_data2), .clk(clk), 
 			 .we(mem_we), .data(mem_rd_data));
 
-assign reg_wdata = wrbck_sel ? mem_rd_data : alu_res;
+assign reg_wdata = wrbck_data_sel ? mem_rd_data : alu_res;
 
 logic take_beq;
 assign take_beq = is_beq && eq;

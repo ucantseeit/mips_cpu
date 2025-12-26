@@ -2,8 +2,8 @@
 
 
 module tb_cpu;
-	typedef enum int { SingleCyc, MultiCyc } CpuType;
-	localparam CpuType ct = SingleCyc;
+	typedef enum int { SingleCyc, MultiCyc, Pipeline } CpuType;
+	localparam CpuType ct = Pipeline;
 
     localparam int MEM_DEPTH = 256;
 	logic clk, reset;
@@ -30,7 +30,7 @@ module tb_cpu;
                 .instr_debug(instr)
             );
             initial $readmemh("test_programs/arith_test.hex", dut.i_ram.mem);
-        end else begin : cpu_inst
+        end else if (ct == SingleCyc) begin : cpu_inst
             single_cycle_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
                 .clk(clk),
                 .reset(reset),
@@ -39,7 +39,17 @@ module tb_cpu;
                 .instr_debug(instr)
             );
             initial $readmemh("test_programs/arith_test.hex", dut.instr_ram.mem);
-        end
+		end else begin
+			pipeline_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
+                .clk(clk),
+                .reset(reset),
+                .regs_debug(regs),
+                .pc_debug(pc),
+                .instr_debug(instr)
+            );
+            initial $readmemh("test_programs/arith_test.hex", dut.instr_ram.mem);
+		end
+
     endgenerate
 
     initial begin
@@ -52,6 +62,8 @@ module tb_cpu;
 		// Run all 22 instructions
 		if (ct == MultiCyc)
         	wait_cycles(110);  
+		if (ct == Pipeline)
+			wait_cycles(90);
 		else
 			wait_cycles(25);
 		

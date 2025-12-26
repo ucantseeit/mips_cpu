@@ -1,7 +1,7 @@
 /* 
 wreg_dst_sel控制将被写入的寄存器的编号的来源，
 	0来自Instr[20:16](Rt)，1来自Instr[15:11](Rd)
-wrbck_sel控制将被写入的寄存器的数据的来源
+wrbck_data_sel控制将被写入的寄存器的数据的来源
 	0来自aluout，1来自内存输出
 */
 module multicyc_mcu (
@@ -12,7 +12,7 @@ module multicyc_mcu (
 	output logic alu_srca_sel, 
 	output logic [1:0]alu_srcb_sel, 
 	output logic [3:0] aluop, 
-	output logic mem_rd, mem_wr, 
+	output logic mem_rd, mem_we, 
 				reg_we, pc_we, 
 				wreg_dst_sel, wrbck_data_sel,
 	output logic [1:0] nxt_pc_sel, 
@@ -36,7 +36,7 @@ end
 always_comb begin 
 	{mem_addr_sel, ir_we} = 2'b0;
 	{alu_srca_sel, alu_srcb_sel, aluop} = 5'b0;
-	{mem_rd, mem_wr, reg_we, pc_we, wreg_dst_sel, wrbck_data_sel} = 6'b0;
+	{mem_rd, mem_we, reg_we, pc_we, wreg_dst_sel, wrbck_data_sel} = 6'b0;
 	{nxt_pc_sel, is_beq, is_jmp} = 4'b0;
 
 	case (curr_state)
@@ -74,7 +74,7 @@ always_comb begin
 		MemWr: begin
 			next_state = Fetch;
 			mem_addr_sel = AddrALUout;
-			mem_wr = 1; end
+			mem_we = 1; end
 		MemWrbck: begin
 			next_state = Fetch;
 			wreg_dst_sel = WrRt;
