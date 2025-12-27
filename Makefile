@@ -47,6 +47,7 @@ ARITH_TB  = tb/arith_tb.sv
 BEQJMP_TB = tb/beq_jmp_tb.sv
 LWSW_TB   = tb/lw_sw_tb.sv
 CHECKSUM_TB = tb/checksum_tb.sv
+STALL_TB = tb/stall_tb.sv
 
 # All source in correct compile order
 SRC_FILES = \
@@ -87,6 +88,10 @@ compile_lwsw: compile
 
 compile_checksum: compile
 	$(VLOG) -work $(WORKLIB) -sv $(CHECKSUM_TB)
+
+compile_stall: compile
+	$(VLOG) -work $(WORKLIB) -sv $(STALL_TB)
+
 	
 # 清理
 clean:

@@ -12,29 +12,42 @@ module pipeline_cpu #(
 import SinglecycCtrl::*;
 import PipelineHazardCtrl::*;
 
+logic [31:0] instr_decode;
 logic [4:0] rs_exe;
 logic [4:0] rt_exe;
 logic [4:0] wreg_dst_dm;
 logic [4:0] wreg_dst_wrbck;
+logic wrbck_data_sel_exe;
 logic reg_we_dm;
 logic reg_we_wrbck;
-logic [1:0] forward_srca_exe;
-logic [1:0] forward_srcb_exe;
+logic [1:0] forward_srca_sel_exe;
+logic [1:0] forward_srcb_sel_exe;
+logic stall_fetch;
+logic stall_decode;
+logic clear_exe;
 pipeline_hazard_unit i_hu(
+	instr_decode[25:21],
+	instr_decode[20:16],
 	rs_exe,
 	rt_exe,
+	wrbck_data_sel_exe,
 	wreg_dst_dm,
 	wreg_dst_wrbck,
 	reg_we_dm,
 	reg_we_wrbck,
-	forward_srca_exe,
-	forward_srcb_exe
+
+	stall_fetch,
+	stall_decode,
+	clear_exe,
+	forward_srca_sel_exe,
+	forward_srcb_sel_exe
 );
 
 // Fetch
 logic [31:0] next_pc, pc;
 always_ff @( posedge clk ) begin 
 	if (reset) pc <= 32'b0;
+	else if (stall_fetch) ;
 	else pc <= next_pc;
 end
 
@@ -45,11 +58,14 @@ rom #(MEM_DEPTH)
 logic [31:0] pc_plus4;
 assign pc_plus4 = pc + 32'b100;
 
-logic [31:0] instr_decode;
+// logic [31:0] instr_decode;
 logic [31:0] pc_plus4_decode;
 always_ff @( posedge clk ) begin
-	instr_decode <= instr;
-	pc_plus4_decode <= pc_plus4;
+	if (stall_decode) ;
+	else begin
+		instr_decode <= instr;
+		pc_plus4_decode <= pc_plus4;
+	end
 end
 
 assign pc_debug = pc;
@@ -76,7 +92,8 @@ singlecyc_mcu i_mcu(
 logic [3:0] alu_ctrl;
 alu_cu i_alu_cu(aluop, instr_decode[5:0], alu_ctrl);
 
-logic [31:0] r_data1, r_data2;
+logic [31:0] r_data1;
+logic [31:0] r_data2;
 logic [31:0] wrbck_data;
 // logic [4:0]  wreg_dst_wrbck;
 reg_file i_reg_file(.clk(clk), 				   
@@ -88,6 +105,17 @@ reg_file i_reg_file(.clk(clk),
 					.r_data1(r_data1), 	   
 					.r_data2(r_data2),
 					.regs_debug(regs_debug));
+// wrbck->decode forward
+logic [31:0] r_data1_decode;
+logic [31:0] r_data2_decode;
+always_comb begin 
+	if (reg_we_wrbck && wreg_dst_wrbck == instr_decode[25:21])
+		r_data1_decode = wrbck_data;
+	else  r_data1_decode = r_data1;
+	if (reg_we_wrbck && wreg_dst_wrbck == instr_decode[20:16])
+		r_data2_decode = wrbck_data;
+	else  r_data2_decode = r_data2;
+end
 
 logic [31:0] sign_imm_decode;
 assign sign_imm_decode = { {16{instr_decode[15]}}, instr_decode[15:0] };
@@ -100,13 +128,22 @@ logic [4:0]  rd_exe;
 logic [31:0] sign_imm_exe;
 logic [31:0] instr_exe;
 always_ff @( posedge clk ) begin 
-	r_data1_exe <= r_data1;
-	r_data2_exe <= r_data2;
-	rs_exe <= instr_decode[25:21];
-	rt_exe <= instr_decode[20:16];
-	rd_exe <= instr_decode[15:11];	
-	sign_imm_exe <= sign_imm_decode;
-	instr_exe <= instr_decode;
+	if (clear_exe)
+		{
+			r_data1_exe, r_data2_exe,
+			rs_exe, rt_exe,
+			rd_exe, sign_imm_exe, 
+			instr_exe
+		} = 0;
+	else begin
+		r_data1_exe <= r_data1_decode;
+		r_data2_exe <= r_data2_decode;
+		rs_exe <= instr_decode[25:21];
+		rt_exe <= instr_decode[20:16];
+		rd_exe <= instr_decode[15:11];	
+		sign_imm_exe <= sign_imm_decode;
+		instr_exe <= instr_decode;
+	end
 end
 
 logic alu_srcb_sel_exe, 
@@ -114,19 +151,28 @@ logic alu_srcb_sel_exe,
 	mem_we_exe, 
 	reg_we_exe, 
 	wreg_dst_sel_exe, 
-	wrbck_data_sel_exe, 
+	// wrbck_data_sel_exe, 
 	is_beq_exe, is_jmp_exe;
 logic [3:0] alu_ctrl_exe;
 always_ff @( posedge clk ) begin 
-	alu_srcb_sel_exe <= alu_srcb_sel;
-	mem_rd_exe <= mem_rd;
-	mem_we_exe <= mem_we;
-	reg_we_exe <= reg_we;
-	wreg_dst_sel_exe <= wreg_dst_sel;
-	wrbck_data_sel_exe <= wrbck_data_sel;
-	is_beq_exe <= is_beq;
-	is_jmp_exe <= is_jmp;
-	alu_ctrl_exe <= alu_ctrl;
+	if (clear_exe) 
+		{
+			alu_srcb_sel_exe, mem_rd_exe, 
+			mem_we_exe, reg_we_exe, 
+			wreg_dst_sel_exe, wrbck_data_sel_exe,
+			is_beq_exe, is_jmp_exe, alu_ctrl_exe
+		} <= 0;
+	else begin
+		alu_srcb_sel_exe <= alu_srcb_sel;
+		mem_rd_exe <= mem_rd;
+		mem_we_exe <= mem_we;
+		reg_we_exe <= reg_we;
+		wreg_dst_sel_exe <= wreg_dst_sel;
+		wrbck_data_sel_exe <= wrbck_data_sel;
+		is_beq_exe <= is_beq;
+		is_jmp_exe <= is_jmp;
+		alu_ctrl_exe <= alu_ctrl;
+	end
 end
 
 
@@ -138,17 +184,17 @@ logic [31:0] alu_res_wrbck;
 logic [31:0] alu_srca_forwarded;
 logic [31:0] alu_srcb_forwarded;
 always_comb begin 
-	case (forward_srca_exe)
+	case (forward_srca_sel_exe)
 		RsExe: alu_srca_forwarded = r_data1_exe;
 		ALUoutDm_a: alu_srca_forwarded = alu_res_dm;
-		ALUoutWrbck_a: alu_srca_forwarded = alu_res_wrbck;
+		WrbckData_a: alu_srca_forwarded = alu_res_wrbck;
 	endcase
 end
 always_comb begin 
-	case (forward_srcb_exe)
+	case (forward_srcb_sel_exe)
 		RtExe: alu_srcb_forwarded = r_data2_exe;
 		ALUoutDm_b: alu_srcb_forwarded = alu_res_dm;
-		ALUoutWrbck_b: alu_srcb_forwarded = alu_res_wrbck;
+		WrbckData_b: alu_srcb_forwarded = wrbck_data;
 	endcase
 end
 
@@ -206,6 +252,7 @@ logic mem_rd_dm,
 	is_jmp_dm;
 always_ff @( posedge clk ) begin
 	mem_rd_dm <= mem_rd_exe;
+	mem_we_dm <= mem_we_exe;
 	reg_we_dm <= reg_we_exe;
 	wrbck_data_sel_dm <= wrbck_data_sel_exe;
 	is_beq_dm <= is_beq_exe;

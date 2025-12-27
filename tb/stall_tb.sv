@@ -4,7 +4,7 @@
 // TODO: 为单周期CPU添加更多RI指令，使得支持这个tb
 module tb_cpu;
 	typedef enum int { SingleCyc, MultiCyc, Pipeline } CpuType;
-	localparam CpuType ct = MultiCyc;
+	localparam CpuType ct = Pipeline;
 
     localparam int MEM_DEPTH = 2048;
 	logic clk, reset;
@@ -29,7 +29,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/checksum.hex", dut.i_ram.mem);
+            initial $readmemh("test_programs/stall.hex", dut.i_ram.mem);
         end else if (ct == SingleCyc) begin : cpu_inst
             single_cycle_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
                 .clk(clk),
@@ -38,7 +38,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/checksum.hex", dut.instr_ram.mem);
+            initial $readmemh("test_programs/stall.hex", dut.instr_ram.mem);
 		end else begin
 			pipeline_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
                 .clk(clk),
@@ -47,7 +47,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/checksum.hex", dut.instr_ram.mem);		
+            initial $readmemh("test_programs/stall.hex", dut.instr_ram.mem);		
 		end
     endgenerate
 
@@ -63,10 +63,12 @@ module tb_cpu;
 		else
     	    wait_cycles(50);  // Run all instructions
 
-		assert (regs[2] == 32'h000000AA) else $error("should get 0xAA, but got $v0 = %0d", regs[2]);
+		assert (regs[8] == 32'h0000000A) else $error("should get 0xA, but got $t0 = %0d", regs[8]);
+		assert (regs[9] == 32'h00000014) else $error("should get 0x14, but got $t1 = %0d", regs[9]);
+		assert (regs[10] == 32'h0000000A) else $error("should get 0xA, but got $t2 = %0d", regs[10]);
+		assert (regs[11] == 32'h0000001E) else $error("should get 0xA, but got $t3 = %0d", regs[11]);
 
-		$display("reach checksum test end!");
-		$finish;
+		$display("reach stall test end!");
+	$finish;
     end
 endmodule
-

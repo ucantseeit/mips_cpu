@@ -57,10 +57,10 @@ endpackage
 
 package PipelineHazardCtrl;
 	typedef enum logic [1:0] { 
-		RsExe, ALUoutDm_a, ALUoutWrbck_a
-	 } forward_srca_exe_t;
+		RsExe, ALUoutDm_a, WrbckData_a
+	 } forward_srca_sel_exe_t;
 
 	typedef enum logic [1:0] { 
-		RtExe, ALUoutDm_b, ALUoutWrbck_b
-	 } forward_srcb_exe_t;
+		RtExe, ALUoutDm_b, WrbckData_b
+	 } forward_srcb_sel_exe_t;
 endpackage
