@@ -22,6 +22,12 @@ logic reg_we_dm;
 logic reg_we_wrbck;
 logic [1:0] forward_srca_sel_exe;
 logic [1:0] forward_srcb_sel_exe;
+
+logic is_beq;
+logic reg_we_exe;
+logic wrbck_data_sel_dm;
+logic [4:0] wreg_dst_exe;
+
 logic stall_fetch;
 logic stall_decode;
 logic clear_exe;
@@ -35,6 +41,11 @@ pipeline_hazard_unit i_hu(
 	wreg_dst_wrbck,
 	reg_we_dm,
 	reg_we_wrbck,
+
+	is_beq,
+	reg_we_exe,
+	wreg_dst_exe,
+	wrbck_data_sel_dm,
 
 	stall_fetch,
 	stall_decode,
@@ -60,8 +71,12 @@ assign pc_plus4 = pc + 32'b100;
 
 // logic [31:0] instr_decode;
 logic [31:0] pc_plus4_decode;
+logic clear_decode;
 always_ff @( posedge clk ) begin
-	if (stall_decode) ;
+	if (clear_decode) begin
+		{instr_decode, pc_plus4_decode} = 0;
+	end
+	else if (stall_decode) ;
 	else begin
 		instr_decode <= instr;
 		pc_plus4_decode <= pc_plus4;
@@ -75,13 +90,14 @@ assign instr_debug = instr;
 
 // Decode
 logic wreg_dst_sel, reg_we, alu_srcb_sel, 
-	  mem_rd, mem_we, wrbck_data_sel, 
-	  is_beq, is_jmp;
+	  mem_we, wrbck_data_sel, 
+	//   is_beq, 
+	  is_jmp;
 logic [3:0] aluop;
 singlecyc_mcu i_mcu(
 	instr_decode[31:26],  
 	alu_srcb_sel,  
-	mem_rd, mem_we, 
+	mem_we, 
 	reg_we, 
 	wreg_dst_sel, 
 	wrbck_data_sel, 
@@ -118,7 +134,38 @@ always_comb begin
 end
 
 logic [31:0] sign_imm_decode;
-assign sign_imm_decode = { {16{instr_decode[15]}}, instr_decode[15:0] };
+assign sign_imm_decode = $signed(instr_decode[15:0]);
+
+// branch & jump logic
+logic [31:0] pc_branch;
+assign pc_branch = $signed({instr_decode[15:0], 2'b00}) + pc_plus4_decode;
+// branch forward
+logic take_beq;
+logic [31:0] forward_rdata1;
+logic [31:0] forward_rdata2;
+logic is_forward_rdata1, is_forward_rdata2;
+// logic wrbck_data_sel_dm;
+assign is_forward_rdata1 = reg_we_dm && 
+						   (wrbck_data_sel_dm == MemData) &&
+						   (wreg_dst_dm == instr_decode[25:21]);
+assign is_forward_rdata2 = reg_we_dm && 
+						   (wrbck_data_sel_dm == MemData) &&
+						   (wreg_dst_dm == instr_decode[20:16]);
+assign take_beq = is_beq && (r_data1 == r_data2);
+// jump logic
+logic [31:0] jmp_pc;
+assign jmp_pc = {pc_plus4[31:28], instr_decode[25:0], 2'b0};
+// set next_pc
+always_comb begin
+	if (is_jmp)	next_pc = jmp_pc;
+	else if (take_beq) next_pc = pc_branch;
+	else next_pc = pc_plus4;
+end
+// set clear_decode
+assign clear_decode = is_jmp || take_beq;
+
+
+
 
 logic [31:0] r_data1_exe;
 logic [31:0] r_data2_exe;
@@ -147,9 +194,8 @@ always_ff @( posedge clk ) begin
 end
 
 logic alu_srcb_sel_exe, 
-	mem_rd_exe, 
 	mem_we_exe, 
-	reg_we_exe, 
+	// reg_we_exe, 
 	wreg_dst_sel_exe, 
 	// wrbck_data_sel_exe, 
 	is_beq_exe, is_jmp_exe;
@@ -157,14 +203,13 @@ logic [3:0] alu_ctrl_exe;
 always_ff @( posedge clk ) begin 
 	if (clear_exe) 
 		{
-			alu_srcb_sel_exe, mem_rd_exe, 
+			alu_srcb_sel_exe,
 			mem_we_exe, reg_we_exe, 
 			wreg_dst_sel_exe, wrbck_data_sel_exe,
 			is_beq_exe, is_jmp_exe, alu_ctrl_exe
 		} <= 0;
 	else begin
 		alu_srcb_sel_exe <= alu_srcb_sel;
-		mem_rd_exe <= mem_rd;
 		mem_we_exe <= mem_we;
 		reg_we_exe <= reg_we;
 		wreg_dst_sel_exe <= wreg_dst_sel;
@@ -215,7 +260,7 @@ alu i_alu(
 	.c(alu_res), 
 	.eq(eq), .overflow(overflow));
 
-logic [4:0] wreg_dst_exe;
+// logic [4:0] wreg_dst_exe;
 always_comb begin 
 	case (wreg_dst_sel_exe)
 		WrRt :  wreg_dst_exe = rt_exe;
@@ -225,33 +270,27 @@ end
 
 logic [31:0] wr_mem_data_exe;
 always_comb begin 
-	wr_mem_data_exe = r_data2_exe;
+	wr_mem_data_exe = alu_srcb_forwarded;
 end
 
-logic [31:0] pc_branch_exe;
-assign pc_branch_exe = (sign_imm_exe << 2) + pc_plus4_decode;
 
-logic eq_dm;
 // logic [31:0] alu_res_dm;
 logic [31:0] wr_mem_data_dm;
 // logic [4:0]  wreg_dst_dm;
 logic [31:0] pc_branch_dm;
 always_ff @( posedge clk ) begin 
-	eq_dm <= eq;
 	alu_res_dm <= alu_res;
 	wr_mem_data_dm <= wr_mem_data_exe;
 	wreg_dst_dm <= wreg_dst_exe;
-	pc_branch_dm <= pc_branch_exe;
 end
 
 logic mem_rd_dm, 
 	mem_we_dm, 
 	// reg_we_dm, 
-	wrbck_data_sel_dm, 
+	// wrbck_data_sel_dm, 
 	is_beq_dm, 
 	is_jmp_dm;
 always_ff @( posedge clk ) begin
-	mem_rd_dm <= mem_rd_exe;
 	mem_we_dm <= mem_we_exe;
 	reg_we_dm <= reg_we_exe;
 	wrbck_data_sel_dm <= wrbck_data_sel_exe;
@@ -270,12 +309,6 @@ ram #(MEM_DEPTH) data_ram(
 	.clk(clk), 
 	.we(mem_we_dm), 
 	.data(mem_rd_data));
-
-logic take_beq;
-assign take_beq = is_beq_dm && eq_dm;
-// logic [31:0] jmp_pc;
-// assign jmp_pc = {pc_plus4[31:28], instr[25:0], 2'b0};
-assign next_pc = take_beq ? pc_branch_dm : pc_plus4;
 
 // logic [31:0] alu_res_wrbck;
 logic [31:0] mem_rd_data_wrbck;

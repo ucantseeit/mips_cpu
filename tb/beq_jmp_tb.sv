@@ -3,7 +3,7 @@
 
 module tb_cpu;
 	typedef enum int { SingleCyc, MultiCyc, Pipeline } CpuType;
-	localparam CpuType ct = SingleCyc;
+	localparam CpuType ct = Pipeline;
 
     localparam int MEM_DEPTH = 256;
 	logic clk, reset;
@@ -20,7 +20,7 @@ module tb_cpu;
 
     // 只例化一个 DUT —— 使用 generate
     generate
-        if (ct == MultiCyc) begin : cpu_inst
+        if (ct == MultiCyc) begin
             multi_cycle_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
                 .clk(clk),
                 .reset(reset),
@@ -29,7 +29,7 @@ module tb_cpu;
                 .instr_debug(instr)
             );
             initial $readmemh("test_programs/beq_jmp.hex", dut.i_ram.mem);
-        end else begin : cpu_inst
+        end else if (ct == SingleCyc) begin
             single_cycle_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
                 .clk(clk),
                 .reset(reset),
@@ -38,7 +38,16 @@ module tb_cpu;
                 .instr_debug(instr)
             );
             initial $readmemh("test_programs/beq_jmp.hex", dut.instr_ram.mem);
-        end
+        end else begin
+			pipeline_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
+                .clk(clk),
+                .reset(reset),
+                .regs_debug(regs),
+                .pc_debug(pc),
+                .instr_debug(instr)
+            );
+            initial $readmemh("test_programs/beq_jmp.hex", dut.instr_ram.mem);		
+		end
     endgenerate
 
     initial begin
@@ -51,7 +60,7 @@ module tb_cpu;
 		if (ct == MultiCyc)
 			wait_cycles(110);
 		else
-    	    wait_cycles(25);  // Run all 22 instructions
+    	    wait_cycles(30);  // Run all 22 instructions
 
 		// 注意, 若执行了j指令, pc值会突然变大(h0000028->h00400030), 但不影响结果
 		// 这不是错误，因为mars得到的机械码实际会把零地址放到h00400000, 而我们的iram不够大，自动忽略了高位。

@@ -9,6 +9,11 @@ module  pipeline_hazard_unit (
 	input logic reg_we_dm,
 	input logic reg_we_wrbck,
 
+	input logic is_branch_decode,
+	input logic reg_we_exe,
+	input logic [4:0] wreg_dst_exe,
+	input logic wrbck_data_sel_dm,
+
 	output logic stall_fetch,
 	output logic stall_decode,
 	output logic clear_exe,
@@ -44,9 +49,23 @@ module  pipeline_hazard_unit (
 	end
 
 	// stall logic
-	logic is_stall;
-	assign is_stall = (wrbck_data_sel_exe == MemData) && 
+	logic lw_stall, 
+		  branch_exedep_stall, branch_dmdep_stall, branch_stall, 
+		  is_stall;
+	assign lw_stall = (wrbck_data_sel_exe == MemData) && 
 					(rs_decode == rt_exe || rt_decode == rt_exe);
+	assign branch_exedep_stall = 
+				is_branch_decode &&
+				reg_we_exe &&
+				( wreg_dst_exe == rs_decode || 
+				  wreg_dst_exe == rt_decode );
+	assign branch_dmdep_stall = 
+				is_branch_decode &&
+				wrbck_data_sel_dm &&
+				( wreg_dst_dm == rs_decode || 
+				  wreg_dst_dm == rt_decode );
+	assign branch_stall = branch_exedep_stall || branch_dmdep_stall;
+	assign is_stall = lw_stall || branch_stall;
 	assign stall_fetch = is_stall;
 	assign stall_decode = is_stall;
 	assign clear_exe = is_stall;

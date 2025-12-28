@@ -8,11 +8,12 @@ module singlecyc_mcu (
 	input logic [5:0] opcode,
 
 	output logic alu_srcb_sel, 
-	mem_rd, mem_we, 
+	mem_we, 
 	reg_we, 
 	wreg_dst_sel, 
 	wrbck_data_sel, 
-	is_beq, jmp,
+	is_beq, 
+	jmp,
 	output logic [3:0] aluop
 );
 
@@ -22,7 +23,7 @@ import SinglecycCtrl::*;
 
 always_comb begin
     // 默认全0（包括 aluop = ADD）
-    {wreg_dst_sel, reg_we, alu_srcb_sel, mem_rd, mem_we, wrbck_data_sel, is_beq, jmp} = 8'b0;
+    {wreg_dst_sel, reg_we, alu_srcb_sel, mem_we, wrbck_data_sel, is_beq, jmp} = 0;
     aluop = ALUop_ADD;
 
     case (opcode)
@@ -31,7 +32,6 @@ always_comb begin
 			wreg_dst_sel = WrRd;
 			aluop = ALUop_RR;  end
         LW: begin 
-			mem_rd = 1;
 			alu_srcb_sel = SrcbImm;
 			reg_we = 1;
 			wreg_dst_sel = WrRt;

@@ -19,14 +19,17 @@ rom #(MEM_DEPTH)
 logic [31:0] pc_plus4;
 assign pc_plus4 = pc + 32'b100;
 
-logic wreg_dst_sel, reg_we, alu_srcb_sel, 
-	  mem_rd, mem_we, wrbck_data_sel, 
+logic wreg_dst_sel, 
+	  reg_we, 
+	  alu_srcb_sel, 
+	  mem_we, 
+	  wrbck_data_sel, 
 	  is_beq, is_jmp;
 logic [3:0] aluop;
 singlecyc_mcu i_mcu(
 	instr[31:26],  
 	alu_srcb_sel,  
-	mem_rd, mem_we, 
+	mem_we, 
 	reg_we, 
 	wreg_dst_sel, 
 	wrbck_data_sel, 
