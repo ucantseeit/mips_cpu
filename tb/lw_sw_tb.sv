@@ -3,7 +3,7 @@
 
 module tb_cpu;
 	typedef enum int { SingleCyc, MultiCyc, Pipeline } CpuType;
-	localparam CpuType ct = Pipeline;
+	localparam CpuType ct = MultiCyc;
 
     localparam int MEM_DEPTH = 1024;
 	logic clk, reset;

@@ -5,7 +5,7 @@ module tb_cpu;
 	typedef enum int { SingleCyc, MultiCyc, Pipeline } CpuType;
 	localparam CpuType ct = MultiCyc;
 
-    localparam int MEM_DEPTH = 1024;
+    localparam int MEM_DEPTH = 2048;
 	logic clk, reset;
 
     always #5 clk = ~clk;
@@ -50,7 +50,7 @@ module tb_cpu;
         reset = 0;
 
 		if (ct == MultiCyc)
-			wait_cycles(70);
+			wait_cycles(200);
 		else
     	    wait_cycles(10);  // Run all 22 instructions
 

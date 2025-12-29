@@ -8,6 +8,8 @@
 module alu (input logic [31:0] a, b,
 			input logic [4:0] shamt,
             input logic [3:0] alu_ctrl,
+			input logic is_mul,
+			
             output logic [31:0] c,
             output logic eq, lt, overflow);
 
@@ -65,38 +67,41 @@ assign eq = (adder_sum == 32'b0);
 always_comb begin
     overflow = 1'b0;	// 默认赋值，预防latch推断
 
-    case (alu_ctrl)
-        ALU_ADD:  begin
-            c        = adder_sum;
-            overflow = signed_overflow;
-        	end
-        ALU_ADDU: c = adder_sum;
+	if (is_mul)		c = a * b;
+	else begin
+		case (alu_ctrl)
+			ALU_ADD:  begin
+				c        = adder_sum;
+				overflow = signed_overflow;
+				end
+			ALU_ADDU: c = adder_sum;
 
-		ALU_SUB: begin
-            c        = adder_sum;
-            overflow = signed_overflow;
-		end
-		ALU_SUBU: begin
-            c        = adder_sum;
-		end
-		
-		ALU_SLT, ALU_SLTU:	c = {31'b0, cmp_lt};
+			ALU_SUB: begin
+				c        = adder_sum;
+				overflow = signed_overflow;
+			end
+			ALU_SUBU: begin
+				c        = adder_sum;
+			end
+			
+			ALU_SLT, ALU_SLTU:	c = {31'b0, cmp_lt};
 
-		// 注意移位操作数顺序与其它的都不同
-		ALU_SLL : c = b << shamt;
-		ALU_SLLV: c = b << a[4:0];
-		ALU_SRL : c = b >> shamt;
-		ALU_SRLV: c = b >> a[4:0];
-		ALU_SRA : c = $signed(b) >>> shamt;
-		ALU_SRAV: c = $signed(b) >>> a[4:0];
+			// 注意移位操作数顺序与其它的都不同
+			ALU_SLL : c = b << shamt;
+			ALU_SLLV: c = b << a[4:0];
+			ALU_SRL : c = b >> shamt;
+			ALU_SRLV: c = b >> a[4:0];
+			ALU_SRA : c = $signed(b) >>> shamt;
+			ALU_SRAV: c = $signed(b) >>> a[4:0];
 
-		ALU_AND : c = a & b;
-		ALU_OR  : c = a | b;
-		ALU_NOR : c = ~(a | b);
-		ALU_XOR : c = a ^ b;
+			ALU_AND : c = a & b;
+			ALU_OR  : c = a | b;
+			ALU_NOR : c = ~(a | b);
+			ALU_XOR : c = a ^ b;
 
-		default : c = 32'b0;
-    endcase
+			default : c = 32'b0;
+		endcase
+	end
 end
 
 endmodule

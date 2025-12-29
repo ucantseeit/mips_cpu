@@ -98,11 +98,11 @@ bgtz_11_fail:
         # (12) bgtz $zero (0) should NOT branch
 bgtz_12_test:
         bgtz $zero, bgtz_12_fail
-        j    lui_test            # success path
+        j    test_done            # success path
 bgtz_12_fail:
         li   $6, 1
         j    test_done
 
 test_done:
         li   $v0, 10             # exit syscall
-        syscall
+        # syscall

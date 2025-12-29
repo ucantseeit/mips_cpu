@@ -5,7 +5,7 @@ module tb_cpu;
 	typedef enum int { SingleCyc, MultiCyc, Pipeline } CpuType;
 	localparam CpuType ct = MultiCyc;
 
-    localparam int MEM_DEPTH = 16384;
+    localparam int MEM_DEPTH = 2048;
 	logic clk, reset;
 
     always #5 clk = ~clk;
@@ -28,10 +28,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial begin
-				$readmemh("test_programs/final_text.hex", dut.i_ram.mem);
-				$readmemh("test_programs/final_data.hex", dut.i_ram.mem, 32'h800);
-			end
+            initial $readmemh("test_programs/more_j_instr.hex", dut.i_ram.mem);
         end else begin : cpu_inst
             single_cycle_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
                 .clk(clk),
@@ -40,7 +37,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/final_text.hex", dut.instr_ram.mem);
+            initial $readmemh("test_programs/more_j_instr.hex", dut.instr_ram.mem);
         end
     endgenerate
 
@@ -53,11 +50,13 @@ module tb_cpu;
         reset = 0;
 
 		if (ct == MultiCyc)
-			wait_cycles(2000);
+			wait_cycles(200);
 		else
     	    wait_cycles(10);  // Run all 22 instructions
 
-		$display("reach final test end!");
+		assert (regs[6] == 32'h0) else $error("Branch test FAILED! $6 = %0h", regs[6]);
+
+		$display("reach more j instructions test end!");
 		$finish;
     end
 endmodule

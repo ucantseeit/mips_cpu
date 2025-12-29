@@ -16,16 +16,19 @@ logic [31:0] instr;
 logic mem_addr_sel, ir_we,
 	alu_srca_sel, 
 	mem_we, 
-	reg_we, pc_we, 
-	wreg_dst_sel;
+	reg_we, pc_we;
+logic [1:0] wreg_dst_sel;
 logic [1:0] wreg_data_sel;
 logic [2:0] alu_srcb_sel;
 logic [3:0] aluop;
 logic [1:0] nxt_pc_sel;
 logic is_beq, is_bne, is_bgeltz, is_blez, is_bgtz;
-logic is_jmp;
+logic is_mul;
 multicyc_mcu cu(
-	clk, reset, instr[31:26],
+	clk, 
+	reset, 
+	instr[31:26],
+	instr[5:0],
 
 	mem_addr_sel, 
 	ir_we,
@@ -39,7 +42,7 @@ multicyc_mcu cu(
 	wreg_data_sel,
 	nxt_pc_sel,
 	is_beq, is_bne, is_bgeltz, is_blez, is_bgtz,
-	is_jmp
+	is_mul
 );
 
 logic [3:0] alu_ctrl;
@@ -47,11 +50,13 @@ alu_cu i_alu_cu(aluop, instr[5:0], alu_ctrl);
 
 logic [31:0] aluout, aluout_nxt;
 logic [31:0] next_pc, pc;
+logic [31:0] r_data1;
 always_comb begin 
 	case (nxt_pc_sel)
 		PCPlus4 : next_pc = aluout;
 		PCBranch : next_pc = aluout_nxt;
 		PCJmp : next_pc = {pc[31:28], instr[25:0], 2'b00};
+		PCRs  : next_pc = r_data1;
 		default : next_pc = pc;
 	endcase
 end
@@ -101,6 +106,7 @@ always_comb begin
 	case (wreg_dst_sel)
 		WrRt: w_reg = instr[20:16];
 		WrRd: w_reg = instr[15:11];
+		WrRa: w_reg = 5'b1_1111;
 	endcase
 end
 
@@ -110,10 +116,12 @@ always_comb begin
 		ALUout: wreg_data = aluout_nxt;
 		MemData: wreg_data = mem_data_nxt;
 		LuiResult: wreg_data = {instr[15:0], 16'b0};
+		PCPlus4_j: wreg_data = pc;
 	endcase
 end
 
-logic [31:0] r_data1, r_data2;
+// logic [31:0] r_data1;
+logic [31:0] r_data2;
 reg_file i_reg_file(.clk(clk), .we(reg_we),
 					.r_reg1(instr[25:21]), .r_reg2(instr[20:16]),
 					.w_reg(w_reg), .w_data(wreg_data),
@@ -147,7 +155,8 @@ end
 
 logic overflow;
 alu i_alu(alu_srca, alu_srcb, instr[10:6],
-		  alu_ctrl, aluout, eq, lt, overflow);
+		  alu_ctrl, is_mul, 
+		  aluout, eq, lt, overflow);
 
 always_ff @( posedge clk ) begin
 	aluout_nxt <= aluout;

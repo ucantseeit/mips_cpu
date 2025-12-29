@@ -25,6 +25,8 @@ package Opcodes;
 	parameter JALR_funct = 6'b00_1001;
 	parameter JR_funct = 6'b00_1000;
 
+	parameter MUL = 6'b01_1100;
+
 endpackage
 
 package ALUops;
@@ -49,14 +51,21 @@ package MultcycCtrl;
 	typedef enum logic [2:0] {
 		SrcbRt, Four, SrcbImm, BeqImm, Zero
 	} alu_srcb_sel_t;
-	typedef enum logic {WrRt, WrRd} wreg_dst_sel_t;
-	typedef enum logic [1:0] {ALUout, MemData, LuiResult} wreg_data_sel_t;
-	typedef enum logic [1:0] { PCPlus4, PCBranch, PCJmp } nxt_pc_sel;
+	typedef enum logic [1:0] {
+		WrRt, WrRd, WrRa
+	} wreg_dst_sel_t;
+	typedef enum logic [1:0] {
+		ALUout, MemData, LuiResult, PCPlus4_j
+	} wreg_data_sel_t;
+	typedef enum logic [1:0] { 
+		PCPlus4, PCBranch, PCJmp, PCRs
+	} nxt_pc_sel;
 
-	typedef enum logic [3:0] {
+	typedef enum logic [4:0] {
 		Fetch, Decode, MemAddr, MemRd, 
-		MemWrbck, MemWr, RRExec, RRWrbck, Branch, Jmp,
-		RIExec, RIWrbck, Lui
+		MemWrbck, MemWr, RRExec, RRWrbck, 
+		Branch, Jmp, RIExec, RIWrbck, 
+		Lui, Jal, Jalr, Jr
 	} state_type;	
 endpackage
 

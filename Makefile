@@ -49,6 +49,8 @@ LWSW_TB   = tb/lw_sw_tb.sv
 CHECKSUM_TB = tb/checksum_tb.sv
 STALL_TB = tb/stall_tb.sv
 MOREINSTR_TB = tb/more_instr_tb.sv
+MOREJINSTR_TB = tb/more_j_instr_tb.sv
+FINAL_TB = tb/final_test.sv
 
 # All source in correct compile order
 SRC_FILES = \
@@ -93,8 +95,14 @@ compile_checksum: compile
 compile_moreinstr: compile
 	$(VLOG) -work $(WORKLIB) -sv $(MOREINSTR_TB)
 
+compile_morejinstr: compile
+	$(VLOG) -work $(WORKLIB) -sv $(MOREJINSTR_TB)
+
 compile_stall: compile
 	$(VLOG) -work $(WORKLIB) -sv $(STALL_TB)
+
+compile_final: compile
+	$(VLOG) -work $(WORKLIB) -sv $(FINAL_TB)
 
 	
 # 清理

@@ -7,6 +7,7 @@ wreg_data_sel控制将被写入的寄存器的数据的来源
 module multicyc_mcu (
 	input logic clk, reset, 
 	input logic [5:0] opcode,
+	input logic [5:0] funct,
 
 	output logic mem_addr_sel, 
 	output logic ir_we,
@@ -16,11 +17,11 @@ module multicyc_mcu (
 	output logic mem_we, 
 				reg_we, 
 				pc_we, 
-				wreg_dst_sel, 
+	output logic [1:0] wreg_dst_sel, 
 	output logic [1:0] wreg_data_sel,
 	output logic [1:0] nxt_pc_sel, 
 	output logic is_beq, is_bne, is_bgeltz, is_blez, is_bgtz,
-	output logic is_jmp
+	output logic is_mul
 );
 
 import ALUops::*;
@@ -29,11 +30,11 @@ import MultcycCtrl::*;
 
 
 
-logic [3:0] curr_state;
-logic [3:0] next_state;
+logic [4:0] curr_state;
+logic [4:0] next_state;
 
 always_ff @( posedge clk ) begin
-	if (reset) curr_state <= 4'b0000;
+	if (reset) curr_state <= 'b0;
 	else 	   curr_state <= next_state;
 end
 
@@ -46,7 +47,7 @@ always_comb begin
 		wreg_dst_sel, wreg_data_sel,
 		nxt_pc_sel,
 		is_beq, is_bne, is_bgeltz, is_blez, is_bgtz,
-		is_jmp
+		is_mul
 	} = 'b0;
 
 	case (curr_state)
@@ -62,13 +63,16 @@ always_comb begin
 		Decode: begin
 			case (opcode)
 				LW, SW: next_state = MemAddr;
-				RR: next_state = RRExec;
+				RR, MUL: 
+					if (funct == JALR_funct)	next_state = Jalr;
+					else if (funct == JR_funct) next_state = Jr;
+					else next_state = RRExec;
 				BEQ, BNE, BGELTZ, BLEZ, BGTZ: next_state = Branch;
 				J : next_state = Jmp;
 				ADDI, ADDIU, ANDI, ORI, XORI: next_state = RIExec;
-
 				LUI: next_state = Lui;
-				default: next_state = 0; 
+				JAL: next_state = Jal;
+				default: next_state = 'b0; 
 			endcase
 			/* for branch */
 			alu_srca_sel = AddrPC;
@@ -96,6 +100,7 @@ always_comb begin
 			next_state = RRWrbck;
 			alu_srca_sel = SrcaRs;
 			alu_srcb_sel = SrcbRt;
+			if (opcode == MUL)	is_mul = 1;
 			aluop = ALUop_RR; end
 		RRWrbck: begin
 			next_state = Fetch;
@@ -114,7 +119,7 @@ always_comb begin
 				XORI:  aluop = ALUop_XOR;
 				SLTI:  aluop = ALUop_SLT;
 				SLTIU: aluop = ALUop_SLTU;
-				default: aluop = 0;
+				default: aluop = 'b0;
 			endcase  end
 		RIWrbck: begin
 			next_state = Fetch;
@@ -146,13 +151,36 @@ always_comb begin
 			endcase end
 		Jmp: begin
 			next_state = Fetch;
-			nxt_pc_sel = PCJmp;
-			pc_we = 1; end
+			pc_we = 1;
+			nxt_pc_sel = PCJmp; end
 		Lui: begin
 			next_state = Fetch;
 			reg_we = 1;
 			wreg_dst_sel = WrRt;
 			wreg_data_sel = LuiResult; end
+		Jal: begin
+			next_state = Fetch;
+			/* for write pc */
+			pc_we = 1;
+			nxt_pc_sel = PCJmp;
+			/* for store pc+4 */
+			reg_we = 1;
+			wreg_dst_sel = WrRa;
+			wreg_data_sel = PCPlus4_j; end
+		Jalr: begin
+			next_state = Fetch;
+			/* for write pc */
+			pc_we = 1;
+			nxt_pc_sel = PCJmp;
+			/* for store pc+4 */
+			reg_we = 1;
+			wreg_dst_sel = WrRd;
+			wreg_data_sel = PCPlus4_j; end
+		Jr: begin
+			next_state = Fetch;
+			pc_we = 1;
+			nxt_pc_sel = PCRs;
+		end
 		default: ;
 	endcase
 end

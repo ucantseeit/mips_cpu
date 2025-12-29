@@ -1,4 +1,5 @@
 // alu_ctrl的内容与标准教材略有不同，是我精心设计的
+// mul指令不通过alu_cu控制，而是由mcu的is_mul信号直接控制
 module alu_cu (
 	input logic [3:0] aluop,
 	input logic [5:0] funct,
