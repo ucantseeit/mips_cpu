@@ -9,7 +9,7 @@ module alu (input logic [31:0] a, b,
 			input logic [4:0] shamt,
             input logic [3:0] alu_ctrl,
             output logic [31:0] c,
-            output logic eq, overflow);
+            output logic eq, lt, overflow);
 
 // 以下是alu_ctrl码
 localparam ALU_ADD  = 4'b0000;
@@ -52,11 +52,12 @@ assign signed_overflow = (a[31] == b[31]) && (a[31] != adder_sum[31]);
 
 // circuits for comparator
 logic cmp_is_signed;
-assign cmp_is_signed = (alu_ctrl == ALU_SLT);
+assign cmp_is_signed = (alu_ctrl == ALU_SLT || alu_ctrl == ALU_SUB);
 logic cmp_lt;
 comparator i_comparator(
 .a(a), .b(b), .is_signed(cmp_is_signed), .lt(cmp_lt)
 );
+assign lt = cmp_lt;
 
 // for beq
 assign eq = (adder_sum == 32'b0);

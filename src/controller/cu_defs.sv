@@ -16,10 +16,15 @@ package Opcodes;
 	parameter SLTIU  =6'b00_1011;
 
 	parameter BNE   = 6'b00_0101;
-	parameter BGEZ  = 6'b00_0001;
-	parameter BLTZ  = 6'b00_0001;
+	parameter BGELTZ  = 6'b00_0001;	/* 靠instr[20:16]区分，前1后0 */
 	parameter BLEZ  = 6'b00_0110;
 	parameter BGTZ  = 6'b00_0111;
+
+	parameter JAL   = 6'b00_0011;
+	/* 这两个R型指令与一般R型控制逻辑很不同，单独列出 */
+	parameter JALR_funct = 6'b00_1001;
+	parameter JR_funct = 6'b00_1000;
+
 endpackage
 
 package ALUops;
@@ -41,8 +46,8 @@ endpackage
 package MultcycCtrl;
 	typedef enum logic {AddrPC, AddrALUout} mem_addr_sel_t;
 	typedef enum logic {SrcaPC, SrcaRs} alu_srca_sel_t;
-	typedef enum logic [1:0] {
-		SrcbRt, Four, SrcbImm, BeqImm
+	typedef enum logic [2:0] {
+		SrcbRt, Four, SrcbImm, BeqImm, Zero
 	} alu_srcb_sel_t;
 	typedef enum logic {WrRt, WrRd} wreg_dst_sel_t;
 	typedef enum logic [1:0] {ALUout, MemData, LuiResult} wreg_data_sel_t;

@@ -8,16 +8,19 @@ module multicyc_mcu (
 	input logic clk, reset, 
 	input logic [5:0] opcode,
 
-	output logic mem_addr_sel, ir_we,
+	output logic mem_addr_sel, 
+	output logic ir_we,
 	output logic alu_srca_sel, 
-	output logic [1:0] alu_srcb_sel, 
+	output logic [2:0] alu_srcb_sel, 
 	output logic [3:0] aluop, 
 	output logic mem_we, 
-				reg_we, pc_we, 
+				reg_we, 
+				pc_we, 
 				wreg_dst_sel, 
 	output logic [1:0] wreg_data_sel,
 	output logic [1:0] nxt_pc_sel, 
-	output logic is_beq, is_jmp
+	output logic is_beq, is_bne, is_bgeltz, is_blez, is_bgtz,
+	output logic is_jmp
 );
 
 import ALUops::*;
@@ -36,14 +39,15 @@ end
 
 always_comb begin 
 	{
-		mem_addr_sel, 
-		ir_we, alu_srca_sel, 
-		alu_srcb_sel, aluop, 
-		mem_we, reg_we, 
-		pc_we, wreg_dst_sel, 
-		wreg_data_sel,nxt_pc_sel,
-		is_beq, is_jmp
-	} = '0;
+		mem_addr_sel, ir_we, 
+		alu_srca_sel, alu_srcb_sel, 
+		aluop, mem_we, 
+		reg_we, pc_we, 
+		wreg_dst_sel, wreg_data_sel,
+		nxt_pc_sel,
+		is_beq, is_bne, is_bgeltz, is_blez, is_bgtz,
+		is_jmp
+	} = 'b0;
 
 	case (curr_state)
 		Fetch: begin
@@ -59,12 +63,11 @@ always_comb begin
 			case (opcode)
 				LW, SW: next_state = MemAddr;
 				RR: next_state = RRExec;
-				BEQ: next_state = Branch;
+				BEQ, BNE, BGELTZ, BLEZ, BGTZ: next_state = Branch;
 				J : next_state = Jmp;
 				ADDI, ADDIU, ANDI, ORI, XORI: next_state = RIExec;
 
 				LUI: next_state = Lui;
-				BNE: next_state = Branch;
 				default: next_state = 0; 
 			endcase
 			/* for branch */
@@ -121,10 +124,26 @@ always_comb begin
 		Branch: begin
 			next_state = Fetch;
 			alu_srca_sel = SrcaRs;
-			alu_srcb_sel = SrcbRt;
 			aluop = ALUop_SUB;
 			nxt_pc_sel = PCBranch;
-			is_beq = 1; end
+			case (opcode)
+				BEQ: begin 
+					is_beq= 1;
+					alu_srcb_sel = SrcbRt; end
+				BNE: begin
+					is_bne = 1;
+					alu_srcb_sel = SrcbRt; end
+				BGELTZ: begin
+					is_bgeltz = 1; 
+					alu_srcb_sel = Zero; end
+				BLEZ: begin
+					is_blez = 1;
+					alu_srcb_sel = Zero; end
+				BGTZ: begin
+					is_bgtz = 1;
+					alu_srcb_sel = Zero; end
+				default: ;
+			endcase end
 		Jmp: begin
 			next_state = Fetch;
 			nxt_pc_sel = PCJmp;
