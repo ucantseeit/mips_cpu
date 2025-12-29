@@ -28,7 +28,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/basic.hex", dut.i_ram.mem);
+            initial $readmemh("test_programs/more_instr.hex", dut.i_ram.mem);
         end else begin : cpu_inst
             single_cycle_cpu #(.MEM_DEPTH(MEM_DEPTH)) dut (
                 .clk(clk),
@@ -37,7 +37,7 @@ module tb_cpu;
                 .pc_debug(pc),
                 .instr_debug(instr)
             );
-            initial $readmemh("test_programs/basic.hex", dut.instr_ram.mem);
+            initial $readmemh("test_programs/more_instr.hex", dut.instr_ram.mem);
         end
     endgenerate
 
@@ -50,16 +50,14 @@ module tb_cpu;
         reset = 0;
 
 		if (ct == MultiCyc)
-			wait_cycles(50);
+			wait_cycles(70);
 		else
     	    wait_cycles(10);  // Run all 22 instructions
 
-		assert (regs[8]  == 32'h8) else $error("Error: $t0 ($8) should be 0x8, got %0h", regs[8]); 
-		assert (regs[9]  == 32'h7) else $error("Error: $t1 ($9) should be 0x7, got %0h", regs[9]);
-		assert (regs[10]  == 32'hF) else $error("Error: $t2 ($8) should be 0xF, got %0h", regs[8]); 
-		assert (regs[11]  == 32'h1) else $error("Error: $t3 ($8) should be 0x1, got %0h", regs[8]); 
+		assert (regs[6] == 32'h0) else $error("Branch test FAILED! $6 = %0h", regs[6]);
+		assert (regs[1] == 32'h12340000) else $error("lui error: $1 = %0h", regs[1]);
 
-		$display("reach basic test end!");
+		$display("reach more instructions test end!");
 		$finish;
     end
 endmodule

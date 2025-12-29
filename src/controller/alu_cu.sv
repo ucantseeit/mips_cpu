@@ -56,12 +56,14 @@ localparam ALU_SRAV = 4'b1111;
 
 always_comb begin 
 	case (aluop)
-		ALUop_ADD: alu_ctrl = ALU_ADD;
-		ALUop_SUB: alu_ctrl = ALU_SUB;
+		ALUop_ADD:  alu_ctrl = ALU_ADD;
+		ALUop_SUB:  alu_ctrl = ALU_SUB;
 		ALUop_ADDU: alu_ctrl = ALU_ADDU;
-		ALUop_AND: alu_ctrl = ALU_AND;
-		ALUop_OR: alu_ctrl = ALU_OR;
-		ALUop_XOR: alu_ctrl = ALU_XOR;
+		ALUop_AND:  alu_ctrl = ALU_AND;
+		ALUop_OR:   alu_ctrl = ALU_OR;
+		ALUop_XOR:  alu_ctrl = ALU_XOR;
+		ALUop_SLT:  alu_ctrl = ALU_SLT;
+		ALUop_SLTU: alu_ctrl = ALU_SLTU;
 		default: begin
 			case (funct)
 			ADD  : alu_ctrl = ALU_ADD;

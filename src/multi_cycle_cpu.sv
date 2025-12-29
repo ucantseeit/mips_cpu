@@ -15,22 +15,30 @@ import MultcycCtrl::*;
 logic [31:0] instr;
 logic mem_addr_sel, ir_we,
 	alu_srca_sel, 
-	mem_rd, mem_we, 
+	mem_we, 
 	reg_we, pc_we, 
-	wreg_dst_sel, wrbck_data_sel;
+	wreg_dst_sel;
+logic [1:0] wreg_data_sel;
 logic [1:0] alu_srcb_sel;
 logic [3:0] aluop;
 logic [1:0] nxt_pc_sel;
 logic is_beq, is_jmp;
-multicyc_mcu cu(clk, reset, instr[31:26],
-	mem_addr_sel, ir_we,
-	alu_srca_sel, alu_srcb_sel, 
+multicyc_mcu cu(
+	clk, reset, instr[31:26],
+
+	mem_addr_sel, 
+	ir_we,
+	alu_srca_sel, 
+	alu_srcb_sel, 
 	aluop, 
-	mem_rd, mem_we, 
-	reg_we, pc_we, 
-	wreg_dst_sel, wrbck_data_sel,
+	mem_we, 
+	reg_we, 
+	pc_we, 
+	wreg_dst_sel, 
+	wreg_data_sel,
 	nxt_pc_sel,
-	is_beq, is_jmp
+	is_beq, 
+	is_jmp
 );
 
 logic [3:0] alu_ctrl;
@@ -86,9 +94,10 @@ end
 
 logic [31:0] wreg_data;
 always_comb begin 
-	case (wrbck_data_sel)
+	case (wreg_data_sel)
 		ALUout: wreg_data = aluout_nxt;
 		MemData: wreg_data = mem_data_nxt;
+		LuiResult: wreg_data = {instr[15:0], 16'b0};
 	endcase
 end
 

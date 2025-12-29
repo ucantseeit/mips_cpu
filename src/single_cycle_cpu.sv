@@ -23,7 +23,7 @@ logic wreg_dst_sel,
 	  reg_we, 
 	  alu_srcb_sel, 
 	  mem_we, 
-	  wrbck_data_sel, 
+	  wreg_data_sel, 
 	  is_beq, is_jmp;
 logic [3:0] aluop;
 singlecyc_mcu i_mcu(
@@ -32,7 +32,7 @@ singlecyc_mcu i_mcu(
 	mem_we, 
 	reg_we, 
 	wreg_dst_sel, 
-	wrbck_data_sel, 
+	wreg_data_sel, 
 	is_beq, is_jmp, 
 	aluop
 );
@@ -67,7 +67,7 @@ logic [31:0] mem_rd_data;
 ram #(MEM_DEPTH) data_ram(.addr(alu_res), .w_data(r_data2), .clk(clk), 
 			 .we(mem_we), .data(mem_rd_data));
 
-assign reg_wdata = wrbck_data_sel ? mem_rd_data : alu_res;
+assign reg_wdata = wreg_data_sel ? mem_rd_data : alu_res;
 
 logic take_beq;
 assign take_beq = is_beq && eq;

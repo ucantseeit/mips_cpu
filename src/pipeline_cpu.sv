@@ -17,7 +17,7 @@ logic [4:0] rs_exe;
 logic [4:0] rt_exe;
 logic [4:0] wreg_dst_dm;
 logic [4:0] wreg_dst_wrbck;
-logic wrbck_data_sel_exe;
+logic wreg_data_sel_exe;
 logic reg_we_dm;
 logic reg_we_wrbck;
 logic [1:0] forward_srca_sel_exe;
@@ -25,7 +25,7 @@ logic [1:0] forward_srcb_sel_exe;
 
 logic is_beq;
 logic reg_we_exe;
-logic wrbck_data_sel_dm;
+logic wreg_data_sel_dm;
 logic [4:0] wreg_dst_exe;
 
 logic stall_fetch;
@@ -36,7 +36,7 @@ pipeline_hazard_unit i_hu(
 	instr_decode[20:16],
 	rs_exe,
 	rt_exe,
-	wrbck_data_sel_exe,
+	wreg_data_sel_exe,
 	wreg_dst_dm,
 	wreg_dst_wrbck,
 	reg_we_dm,
@@ -45,7 +45,7 @@ pipeline_hazard_unit i_hu(
 	is_beq,
 	reg_we_exe,
 	wreg_dst_exe,
-	wrbck_data_sel_dm,
+	wreg_data_sel_dm,
 
 	stall_fetch,
 	stall_decode,
@@ -90,7 +90,7 @@ assign instr_debug = instr;
 
 // Decode
 logic wreg_dst_sel, reg_we, alu_srcb_sel, 
-	  mem_we, wrbck_data_sel, 
+	  mem_we, wreg_data_sel, 
 	//   is_beq, 
 	  is_jmp;
 logic [3:0] aluop;
@@ -100,7 +100,7 @@ singlecyc_mcu i_mcu(
 	mem_we, 
 	reg_we, 
 	wreg_dst_sel, 
-	wrbck_data_sel, 
+	wreg_data_sel, 
 	is_beq, is_jmp, 
 	aluop
 );
@@ -144,12 +144,12 @@ logic take_beq;
 logic [31:0] forward_rdata1;
 logic [31:0] forward_rdata2;
 logic is_forward_rdata1, is_forward_rdata2;
-// logic wrbck_data_sel_dm;
+// logic wreg_data_sel_dm;
 assign is_forward_rdata1 = reg_we_dm && 
-						   (wrbck_data_sel_dm == MemData) &&
+						   (wreg_data_sel_dm == MemData) &&
 						   (wreg_dst_dm == instr_decode[25:21]);
 assign is_forward_rdata2 = reg_we_dm && 
-						   (wrbck_data_sel_dm == MemData) &&
+						   (wreg_data_sel_dm == MemData) &&
 						   (wreg_dst_dm == instr_decode[20:16]);
 assign take_beq = is_beq && (r_data1 == r_data2);
 // jump logic
@@ -197,7 +197,7 @@ logic alu_srcb_sel_exe,
 	mem_we_exe, 
 	// reg_we_exe, 
 	wreg_dst_sel_exe, 
-	// wrbck_data_sel_exe, 
+	// wreg_data_sel_exe, 
 	is_beq_exe, is_jmp_exe;
 logic [3:0] alu_ctrl_exe;
 always_ff @( posedge clk ) begin 
@@ -205,7 +205,7 @@ always_ff @( posedge clk ) begin
 		{
 			alu_srcb_sel_exe,
 			mem_we_exe, reg_we_exe, 
-			wreg_dst_sel_exe, wrbck_data_sel_exe,
+			wreg_dst_sel_exe, wreg_data_sel_exe,
 			is_beq_exe, is_jmp_exe, alu_ctrl_exe
 		} <= 0;
 	else begin
@@ -213,7 +213,7 @@ always_ff @( posedge clk ) begin
 		mem_we_exe <= mem_we;
 		reg_we_exe <= reg_we;
 		wreg_dst_sel_exe <= wreg_dst_sel;
-		wrbck_data_sel_exe <= wrbck_data_sel;
+		wreg_data_sel_exe <= wreg_data_sel;
 		is_beq_exe <= is_beq;
 		is_jmp_exe <= is_jmp;
 		alu_ctrl_exe <= alu_ctrl;
@@ -287,13 +287,13 @@ end
 logic mem_rd_dm, 
 	mem_we_dm, 
 	// reg_we_dm, 
-	// wrbck_data_sel_dm, 
+	// wreg_data_sel_dm, 
 	is_beq_dm, 
 	is_jmp_dm;
 always_ff @( posedge clk ) begin
 	mem_we_dm <= mem_we_exe;
 	reg_we_dm <= reg_we_exe;
-	wrbck_data_sel_dm <= wrbck_data_sel_exe;
+	wreg_data_sel_dm <= wreg_data_sel_exe;
 	is_beq_dm <= is_beq_exe;
 	is_jmp_dm <= is_jmp_exe;
 end
@@ -320,17 +320,17 @@ end
 
 logic 
 	// reg_we_wrbck, 
-	wrbck_data_sel_wrbck;
+	wreg_data_sel_wrbck;
 always_ff @( posedge clk ) begin
 	reg_we_wrbck <= reg_we_dm;
-	wrbck_data_sel_wrbck <= wrbck_data_sel_dm;
+	wreg_data_sel_wrbck <= wreg_data_sel_dm;
 end
 
 
 
 // Write Back
 always_comb begin 
-	case (wrbck_data_sel_wrbck)
+	case (wreg_data_sel_wrbck)
 		ALUout: wrbck_data = alu_res_wrbck;
 		MemData: wrbck_data = mem_rd_data_wrbck;
 	endcase

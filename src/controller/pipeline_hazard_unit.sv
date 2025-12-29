@@ -3,7 +3,7 @@ module  pipeline_hazard_unit (
 	input logic [4:0] rt_decode,
 	input logic [4:0] rs_exe,
 	input logic [4:0] rt_exe,
-	input logic wrbck_data_sel_exe,
+	input logic wreg_data_sel_exe,
 	input logic [4:0] wreg_dst_dm,
 	input logic [4:0] wreg_dst_wrbck,
 	input logic reg_we_dm,
@@ -12,7 +12,7 @@ module  pipeline_hazard_unit (
 	input logic is_branch_decode,
 	input logic reg_we_exe,
 	input logic [4:0] wreg_dst_exe,
-	input logic wrbck_data_sel_dm,
+	input logic wreg_data_sel_dm,
 
 	output logic stall_fetch,
 	output logic stall_decode,
@@ -52,7 +52,7 @@ module  pipeline_hazard_unit (
 	logic lw_stall, 
 		  branch_exedep_stall, branch_dmdep_stall, branch_stall, 
 		  is_stall;
-	assign lw_stall = (wrbck_data_sel_exe == MemData) && 
+	assign lw_stall = (wreg_data_sel_exe == MemData) && 
 					(rs_decode == rt_exe || rt_decode == rt_exe);
 	assign branch_exedep_stall = 
 				is_branch_decode &&
@@ -61,7 +61,7 @@ module  pipeline_hazard_unit (
 				  wreg_dst_exe == rt_decode );
 	assign branch_dmdep_stall = 
 				is_branch_decode &&
-				wrbck_data_sel_dm &&
+				wreg_data_sel_dm &&
 				( wreg_dst_dm == rs_decode || 
 				  wreg_dst_dm == rt_decode );
 	assign branch_stall = branch_exedep_stall || branch_dmdep_stall;

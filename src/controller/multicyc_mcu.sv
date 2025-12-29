@@ -1,7 +1,7 @@
 /* 
 wreg_dst_sel控制将被写入的寄存器的编号的来源，
 	0来自Instr[20:16](Rt)，1来自Instr[15:11](Rd)
-wrbck_data_sel控制将被写入的寄存器的数据的来源
+wreg_data_sel控制将被写入的寄存器的数据的来源
 	0来自aluout，1来自内存输出
 */
 module multicyc_mcu (
@@ -10,11 +10,12 @@ module multicyc_mcu (
 
 	output logic mem_addr_sel, ir_we,
 	output logic alu_srca_sel, 
-	output logic [1:0]alu_srcb_sel, 
+	output logic [1:0] alu_srcb_sel, 
 	output logic [3:0] aluop, 
-	output logic mem_rd, mem_we, 
+	output logic mem_we, 
 				reg_we, pc_we, 
-				wreg_dst_sel, wrbck_data_sel,
+				wreg_dst_sel, 
+	output logic [1:0] wreg_data_sel,
 	output logic [1:0] nxt_pc_sel, 
 	output logic is_beq, is_jmp
 );
@@ -34,10 +35,15 @@ always_ff @( posedge clk ) begin
 end
 
 always_comb begin 
-	{mem_addr_sel, ir_we} = 2'b0;
-	{alu_srca_sel, alu_srcb_sel, aluop} = 5'b0;
-	{mem_rd, mem_we, reg_we, pc_we, wreg_dst_sel, wrbck_data_sel} = 6'b0;
-	{nxt_pc_sel, is_beq, is_jmp} = 4'b0;
+	{
+		mem_addr_sel, 
+		ir_we, alu_srca_sel, 
+		alu_srcb_sel, aluop, 
+		mem_we, reg_we, 
+		pc_we, wreg_dst_sel, 
+		wreg_data_sel,nxt_pc_sel,
+		is_beq, is_jmp
+	} = '0;
 
 	case (curr_state)
 		Fetch: begin
@@ -53,12 +59,15 @@ always_comb begin
 			case (opcode)
 				LW, SW: next_state = MemAddr;
 				RR: next_state = RRExec;
-				BEQ: next_state = Beq;
+				BEQ: next_state = Branch;
 				J : next_state = Jmp;
 				ADDI, ADDIU, ANDI, ORI, XORI: next_state = RIExec;
+
+				LUI: next_state = Lui;
+				BNE: next_state = Branch;
 				default: next_state = 0; 
 			endcase
-			// for beq
+			/* for branch */
 			alu_srca_sel = AddrPC;
 			alu_srcb_sel = BeqImm;
 			aluop = ALUop_ADD; end
@@ -78,7 +87,7 @@ always_comb begin
 		MemWrbck: begin
 			next_state = Fetch;
 			wreg_dst_sel = WrRt;
-			wrbck_data_sel = MemData;
+			wreg_data_sel = MemData;
 			reg_we = 1; end
 		RRExec: begin
 			next_state = RRWrbck;
@@ -88,7 +97,7 @@ always_comb begin
 		RRWrbck: begin
 			next_state = Fetch;
 			wreg_dst_sel = WrRd;
-			wrbck_data_sel = ALUout;
+			wreg_data_sel = ALUout;
 			reg_we = 1; end
 		RIExec: begin
 			next_state = RIWrbck;
@@ -100,14 +109,16 @@ always_comb begin
 				ANDI:  aluop = ALUop_AND;
 				ORI:   aluop = ALUop_OR;
 				XORI:  aluop = ALUop_XOR;
+				SLTI:  aluop = ALUop_SLT;
+				SLTIU: aluop = ALUop_SLTU;
 				default: aluop = 0;
 			endcase  end
 		RIWrbck: begin
 			next_state = Fetch;
 			wreg_dst_sel = WrRt;
-			wrbck_data_sel = ALUout;
+			wreg_data_sel = ALUout;
 			reg_we = 1; end
-		Beq: begin
+		Branch: begin
 			next_state = Fetch;
 			alu_srca_sel = SrcaRs;
 			alu_srcb_sel = SrcbRt;
@@ -117,8 +128,12 @@ always_comb begin
 		Jmp: begin
 			next_state = Fetch;
 			nxt_pc_sel = PCJmp;
-			pc_we = 1;
-		end
+			pc_we = 1; end
+		Lui: begin
+			next_state = Fetch;
+			reg_we = 1;
+			wreg_dst_sel = WrRt;
+			wreg_data_sel = LuiResult; end
 		default: ;
 	endcase
 end

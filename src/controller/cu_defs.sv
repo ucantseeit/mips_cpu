@@ -11,16 +11,15 @@ package Opcodes;
 	parameter ANDI  = 6'b00_1100;
 	parameter ORI   = 6'b00_1101;
 	parameter XORI  = 6'b00_1110;
-	// parameter LUI   = 6'b00_1111;
-	// parameter SLTI  = 6'b00_1010;
-	// parameter SLTIU  =6'b00_1011;
+	parameter LUI   = 6'b00_1111;
+	parameter SLTI  = 6'b00_1010;
+	parameter SLTIU  =6'b00_1011;
 
-	// parameter BEQ   = 6'b00_0100;
-	// parameter BNE   = 6'b00_0101;
-	// parameter BGEZ  = 6'b00_0001;
-	// parameter BLTZ  = 6'b00_0001;
-	// parameter BLEZ  = 6'b00_0110;
-	// parameter BGTZ  = 6'b00_0111;
+	parameter BNE   = 6'b00_0101;
+	parameter BGEZ  = 6'b00_0001;
+	parameter BLTZ  = 6'b00_0001;
+	parameter BLEZ  = 6'b00_0110;
+	parameter BGTZ  = 6'b00_0111;
 endpackage
 
 package ALUops;
@@ -28,14 +27,15 @@ package ALUops;
 		ALUop_ADD, ALUop_SUB,
 		ALUop_ADDU, 
 		ALUop_AND, ALUop_OR,
-		ALUop_XOR, ALUop_RR
+		ALUop_XOR, ALUop_RR,
+		ALUop_SLT, ALUop_SLTU
 	} ALUop_t;
 endpackage
 
 package SinglecycCtrl;
 	typedef enum logic { SrcbRt, SrcbImm } alu_srcb_sel_t;
 	typedef enum logic { WrRt, WrRd } wreg_dst_sel_t;
-	typedef enum logic { ALUout, MemData } wrbck_data_sel_t;
+	typedef enum logic { ALUout, MemData } wreg_data_sel_t;
 endpackage
 
 package MultcycCtrl;
@@ -45,13 +45,13 @@ package MultcycCtrl;
 		SrcbRt, Four, SrcbImm, BeqImm
 	} alu_srcb_sel_t;
 	typedef enum logic {WrRt, WrRd} wreg_dst_sel_t;
-	typedef enum logic {ALUout, MemData} wrbck_data_sel_t;
+	typedef enum logic [1:0] {ALUout, MemData, LuiResult} wreg_data_sel_t;
 	typedef enum logic [1:0] { PCPlus4, PCBranch, PCJmp } nxt_pc_sel;
 
 	typedef enum logic [3:0] {
 		Fetch, Decode, MemAddr, MemRd, 
-		MemWrbck, MemWr, RRExec, RRWrbck, Beq, Jmp,
-		RIExec, RIWrbck
+		MemWrbck, MemWr, RRExec, RRWrbck, Branch, Jmp,
+		RIExec, RIWrbck, Lui
 	} state_type;	
 endpackage
 

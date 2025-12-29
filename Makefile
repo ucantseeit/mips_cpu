@@ -48,6 +48,7 @@ BEQJMP_TB = tb/beq_jmp_tb.sv
 LWSW_TB   = tb/lw_sw_tb.sv
 CHECKSUM_TB = tb/checksum_tb.sv
 STALL_TB = tb/stall_tb.sv
+MOREINSTR_TB = tb/more_instr_tb.sv
 
 # All source in correct compile order
 SRC_FILES = \
@@ -88,6 +89,9 @@ compile_lwsw: compile
 
 compile_checksum: compile
 	$(VLOG) -work $(WORKLIB) -sv $(CHECKSUM_TB)
+
+compile_moreinstr: compile
+	$(VLOG) -work $(WORKLIB) -sv $(MOREINSTR_TB)
 
 compile_stall: compile
 	$(VLOG) -work $(WORKLIB) -sv $(STALL_TB)
